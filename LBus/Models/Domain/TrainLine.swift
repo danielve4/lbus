@@ -1,6 +1,6 @@
 import Foundation
 
-struct TrainLine: Equatable, Sendable, Identifiable {
+struct TrainLine: Hashable, Sendable, Identifiable {
     let id: String
     let name: String
     let colorHex: String

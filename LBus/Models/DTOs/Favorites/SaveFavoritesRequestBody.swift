@@ -1,6 +1,6 @@
 import Foundation
 
-struct SaveFavoritesRequestBody: Codable, Equatable, Sendable {
+nonisolated struct SaveFavoritesRequestBody: Codable, Equatable, Sendable {
     let id: String
     let favorites: [FavoriteDTO]
 }

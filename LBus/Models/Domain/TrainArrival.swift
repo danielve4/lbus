@@ -18,7 +18,7 @@ struct TrainPosition: Equatable, Sendable {
 struct TrainArrival: Equatable, Sendable, Identifiable {
     var id: String { runNumber + "-" + stationId + "-" + stopId }
 
-    nonisolated(unsafe) private static let dateFormatter: DateFormatter = {
+    private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         f.timeZone = TimeZone(identifier: "America/Chicago")

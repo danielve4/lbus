@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct LBusApp: App {
@@ -6,5 +7,6 @@ struct LBusApp: App {
         WindowGroup {
             RootView()
         }
+        .modelContainer(for: FavoritePersisted.self)
     }
 }

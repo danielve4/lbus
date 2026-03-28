@@ -1,6 +1,6 @@
 import Foundation
 
-struct FavoriteDTO: Codable, Equatable, Sendable {
+nonisolated struct FavoriteDTO: Codable, Equatable, Sendable {
     let route: String
     let stopId: String
     let stopName: String

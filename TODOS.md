@@ -55,53 +55,53 @@ Define the app's domain model types consumed by the UI, distinct from DTOs. Incl
 - [x] Unit tests verify mapping including edge cases (delayed, due now, etc.)
 
 ### TODO 1.4 -- App navigation structure
-- [ ] Complete
+- [x] Complete
 
 Set up the root `TabView` with four tabs: Home, Routes, Favorites, Settings. Each tab owns a `NavigationStack`. Define navigation destination types for the bus and train flows.
 
 **Acceptance Criteria:**
-- [ ] `TabView` with four tabs using SF Symbol icons and labels
-- [ ] Each tab wraps content in a `NavigationStack`
-- [ ] Navigation destination types defined for: bus directions, bus stops, bus arrivals, bus follow, train stations, train arrivals, train follow
-- [ ] App launches and displays the tab bar with placeholder screens
+- [x] `TabView` with four tabs using SF Symbol icons and labels
+- [x] Each tab wraps content in a `NavigationStack`
+- [x] Navigation destination types defined for: bus directions, bus stops, bus arrivals, bus follow, train stations, train arrivals, train follow
+- [x] App launches and displays the tab bar with placeholder screens
 
 ---
 
 ## Group 2: Data Layer
 
 ### TODO 2.1 -- BusRepository
-- [ ] Complete
+- [x] Complete
 
 Create a repository wrapping the API client for all bus endpoints: fetch routes, fetch directions for a route, fetch stops for a route+direction, fetch arrivals for a stop, and fetch follow data for a vehicle.
 
 **Acceptance Criteria:**
-- [ ] Methods: `getRoutes()`, `getDirections(route:)`, `getStops(route:direction:)`, `getArrivals(stopId:)`, `getFollow(vehicleId:)`
-- [ ] Returns domain models (not DTOs)
-- [ ] Errors propagate as typed errors
-- [ ] Protocol-based for testability
+- [x] Methods: `getRoutes()`, `getDirections(route:)`, `getStops(route:direction:)`, `getArrivals(stopId:)`, `getFollow(vehicleId:)`
+- [x] Returns domain models (not DTOs)
+- [x] Errors propagate as typed errors
+- [x] Protocol-based for testability
 
 ### TODO 2.2 -- TrainRepository
-- [ ] Complete
+- [x] Complete
 
 Create a repository for train data. Fetches comprehensive train data (lines, directions, stations) from `/traindata`, and arrivals/follow data from their respective endpoints.
 
 **Acceptance Criteria:**
-- [ ] Methods: `getTrainData()`, `getArrivals(stopId:)`, `getFollow(vehicleId:)`
-- [ ] Returns domain models
-- [ ] Protocol-based for testability
+- [x] Methods: `getTrainData()`, `getArrivals(stopId:)`, `getFollow(vehicleId:)`
+- [x] Returns domain models
+- [x] Protocol-based for testability
 
 ### TODO 2.3 -- FavoritesRepository
-- [ ] Complete
+- [x] Complete
 
 Create a repository managing favorites with SwiftData for local persistence and manual remote sync via `/savefavorites` and `/myfavorites`. Favorites must persist across launches and include enough context to reopen the correct arrivals screen (type, name, stop/station ID, route, direction).
 
 **Acceptance Criteria:**
-- [ ] SwiftData `@Model` for persisted favorites
-- [ ] Add, remove, and clear-all operations on local store
-- [ ] Manual sync to push local favorites to the remote API
-- [ ] Manual sync to pull remote favorites to local store
-- [ ] Device identifier strategy for the API `id` field
-- [ ] Protocol-based for testability
+- [x] SwiftData `@Model` for persisted favorites
+- [x] Add, remove, and clear-all operations on local store
+- [x] Manual sync to push local favorites to the remote API
+- [x] Manual sync to pull remote favorites to local store
+- [x] Device identifier strategy for the API `id` field
+- [x] Protocol-based for testability
 
 ---
 

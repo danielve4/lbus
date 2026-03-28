@@ -1,6 +1,6 @@
 import Foundation
 
-struct BusRoute: Equatable, Sendable, Identifiable {
+struct BusRoute: Hashable, Sendable, Identifiable {
     let id: String
     let name: String
     let colorHex: String

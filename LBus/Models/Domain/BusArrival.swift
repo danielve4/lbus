@@ -8,7 +8,7 @@ enum ArrivalCountdown: Equatable, Sendable {
 struct BusArrival: Equatable, Sendable, Identifiable {
     var id: String { vehicleId + "-" + stopId + "-" + route }
 
-    nonisolated(unsafe) private static let dateFormatter: DateFormatter = {
+    private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyyMMdd HH:mm"
         f.timeZone = TimeZone(identifier: "America/Chicago")
