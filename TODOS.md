@@ -33,26 +33,26 @@ Build a reusable HTTP client targeting `https://cta.danielvega.dev`. Handle GET 
 - [x] Covered by unit tests with sample payloads
 
 ### TODO 1.2 -- API response models (DTOs)
-- [ ] Complete
+- [x] Complete
 
 Define `Codable` structs mapping to JSON responses for all endpoints: bus routes, bus directions, bus stops, bus arrivals, bus follow, train data, train arrivals, train follow, and favorites request/response models.
 
 **Acceptance Criteria:**
-- [ ] One DTO struct per endpoint response shape
-- [ ] Favorites request body models for `/savefavorites` and `/myfavorites`
-- [ ] All DTOs are `Codable`
-- [ ] Decoding tests against representative JSON samples
+- [x] One DTO struct per endpoint response shape
+- [x] Favorites request body models for `/savefavorites` and `/myfavorites`
+- [x] All DTOs are `Codable`
+- [x] Decoding tests against representative JSON samples
 
 ### TODO 1.3 -- Domain models
-- [ ] Complete
+- [x] Complete
 
 Define the app's domain model types consumed by the UI, distinct from DTOs. Includes `BusRoute`, `BusDirection`, `BusStop`, `BusArrival`, `TrainLine`, `TrainStation`, `TrainArrival`, `Favorite`, and follow-screen models. Include DTO-to-domain mapping.
 
 **Acceptance Criteria:**
-- [ ] Domain types defined with properties matching the spec's display requirements (arrival time, delay status, approaching status, etc.)
-- [ ] Mapping from each DTO to its domain model
-- [ ] Enum or type distinguishes bus favorites from train favorites
-- [ ] Unit tests verify mapping including edge cases (delayed, due now, etc.)
+- [x] Domain types defined with properties matching the spec's display requirements (arrival time, delay status, approaching status, etc.)
+- [x] Mapping from each DTO to its domain model
+- [x] Enum or type distinguishes bus favorites from train favorites
+- [x] Unit tests verify mapping including edge cases (delayed, due now, etc.)
 
 ### TODO 1.4 -- App navigation structure
 - [ ] Complete

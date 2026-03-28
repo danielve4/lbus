@@ -1,6 +1,9 @@
 # LBus App
 A real-time Chicago Transit Authority (CTA) bus and train tracker. The application allows users to browse transit routes, view stops, check real-time vehicle arrival predictions, and manage favorite stops. 
 
+# TODOs
+Read TODOS.md for a comprehensive list of features and improvements planned for the app.
+
 # API Host
 https://cta.danielvega.dev
 
