@@ -1,6 +1,9 @@
 import SwiftUI
+import SwiftData
 
 struct RootView: View {
+    @Environment(\.modelContext) private var modelContext
+    @AppStorage(SettingsKeys.theme) private var theme: AppTheme = .system
     @State private var selectedTab: AppTab = .home
 
     var body: some View {
@@ -24,10 +27,19 @@ struct RootView: View {
             }
             Tab("Settings", systemImage: "gear", value: .settings) {
                 NavigationStack {
-                    SettingsPlaceholderView()
+                    SettingsView(favoritesRepository: makeFavoritesRepository())
                 }
             }
         }
+        .preferredColorScheme(theme.colorScheme)
+    }
+
+    private func makeFavoritesRepository() -> FavoritesRepository {
+        FavoritesRepository(
+            modelContext: modelContext,
+            apiClient: APIClient(),
+            deviceIdentifier: DeviceIdentifier()
+        )
     }
 }
 

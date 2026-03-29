@@ -24,3 +24,6 @@ https://cta.danielvega.dev
 ### Favorites
 - `POST /savefavorites` — Save favorites (body: `{ id: phone, favorites: [...] }`)
 - `POST /myfavorites` — Retrieve favorites (body: `{ id: phone }`)
+
+# Notes
+After implementation of a feature, update the corresponding TODO item in TODOS.md with a checkmark and a brief note on completion. This helps track progress and ensures all acceptance criteria are met. Then, summarize the changes in a list (not in TODOS.md).

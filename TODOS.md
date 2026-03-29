@@ -108,16 +108,16 @@ Create a repository managing favorites with SwiftData for local persistence and 
 ## Group 3: Shared Infrastructure
 
 ### TODO 3.1 -- Settings screen and storage
-- [ ] Complete
+- [x] Complete
 
 Implement the settings screen with theme selection (system/light/dark), auto-refresh toggle, refresh interval display, and a clear-favorites data management action. Persist preferences. Apply the selected theme app-wide.
 
 **Acceptance Criteria:**
-- [ ] Theme picker applies system/light/dark via `preferredColorScheme`
-- [ ] Auto-refresh toggle persisted
-- [ ] Refresh interval displayed
-- [ ] "Clear all favorites" action with confirmation
-- [ ] Settings screen accessible from the Settings tab
+- [x] Theme picker applies system/light/dark via `preferredColorScheme`
+- [x] Auto-refresh toggle persisted
+- [x] Refresh interval displayed
+- [x] "Clear all favorites" action with confirmation
+- [x] Settings screen accessible from the Settings tab
 
 ### TODO 3.2 -- Auto-refresh timer utility
 - [ ] Complete
