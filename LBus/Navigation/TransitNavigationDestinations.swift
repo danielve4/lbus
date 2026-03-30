@@ -1,12 +1,15 @@
 import SwiftUI
 
 struct TransitNavigationDestinations: ViewModifier {
+    let busRepository: BusRepositoryProtocol
+    let trainRepository: TrainRepositoryProtocol
+
     func body(content: Content) -> some View {
         content
             .navigationDestination(for: BusNavigation.self) { destination in
                 switch destination {
                 case .directions(let route):
-                    Text("Directions for \(route.name)")
+                    BusDirectionsView(route: route, busRepository: busRepository)
                 case .stops(let route, let direction):
                     Text("Stops for \(route.name) - \(direction)")
                 case .arrivals(let stopId, let stopName, _, _):

@@ -30,13 +30,13 @@ struct RootView: View {
                         busRepository: busRepository,
                         trainRepository: trainRepository
                     )
-                    .modifier(TransitNavigationDestinations())
+                    .modifier(TransitNavigationDestinations(busRepository: busRepository, trainRepository: trainRepository))
                 }
             }
             Tab("Favorites", systemImage: "star", value: .favorites) {
                 NavigationStack {
                     FavoritesPlaceholderView()
-                        .modifier(TransitNavigationDestinations())
+                        .modifier(TransitNavigationDestinations(busRepository: busRepository, trainRepository: trainRepository))
                 }
             }
             Tab("Settings", systemImage: "gear", value: .settings) {

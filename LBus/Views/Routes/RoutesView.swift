@@ -91,7 +91,9 @@ struct RoutesView: View {
         HStack(spacing: 12) {
             Text(route.shortName)
                 .font(.caption.bold())
-                .padding(.horizontal, 6)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(width: 36)
                 .padding(.vertical, 2)
                 .background(RoundedRectangle(cornerRadius: 4).fill(.tertiary))
             Text(route.name)

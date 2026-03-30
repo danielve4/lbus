@@ -169,17 +169,17 @@ Build the Routes screen displaying both bus routes and train lines in a searchab
 - [x] While loading, a shimmer effect is shown in place of the lists
 
 ### TODO 4.2 -- Bus directions screen
-- [ ] Complete
+- [x] Complete
 
 Show available directions for a selected bus route. Selecting a direction proceeds to the stops screen.
 
 **Acceptance Criteria:**
-- [ ] Displays selected route name/number in header
-- [ ] Lists directions fetched from the API
-- [ ] Selecting a direction pushes bus stops screen
-- [ ] Loading, error, and empty states handled
-- [ ] Back navigation returns to routes
-- [ ] While loading, a shimmer effect is shown in place of the lists
+- [x] Displays selected route name/number in header
+- [x] Lists directions fetched from the API
+- [x] Selecting a direction pushes bus stops screen
+- [x] Loading, error, and empty states handled
+- [x] Back navigation returns to routes
+- [x] While loading, a shimmer effect is shown in place of the lists
 
 ### TODO 4.3 -- Bus stops screen (with search and favorite)
 - [ ] Complete

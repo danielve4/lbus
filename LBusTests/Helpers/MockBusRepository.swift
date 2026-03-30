@@ -37,8 +37,43 @@ actor MockBusRepository: BusRepositoryProtocol {
         return getRoutesResult ?? []
     }
 
+    // MARK: - getDirections
+
+    private(set) var getDirectionsResult: [BusDirection]?
+    private(set) var getDirectionsError: Error?
+    private(set) var getDirectionsCalledWithRoute: String?
+    private(set) var getDirectionsCallCount = 0
+    private var shouldSuspendGetDirections = false
+    private var getDirectionsContinuation: CheckedContinuation<Void, Never>?
+    private var getDirectionsEnteredContinuation: CheckedContinuation<Void, Never>?
+
+    func setGetDirectionsResult(_ value: [BusDirection]?) { getDirectionsResult = value }
+    func setGetDirectionsError(_ error: Error?) { getDirectionsError = error }
+    func setShouldSuspendGetDirections(_ value: Bool) { shouldSuspendGetDirections = value }
+
+    func waitForGetDirectionsCalled() async {
+        await withCheckedContinuation { continuation in
+            getDirectionsEnteredContinuation = continuation
+        }
+    }
+
+    func resumeGetDirections() {
+        getDirectionsContinuation?.resume()
+        getDirectionsContinuation = nil
+    }
+
     func getDirections(route: String) async throws -> [BusDirection] {
-        fatalError("Not implemented for RoutesViewModel tests")
+        getDirectionsCalledWithRoute = route
+        getDirectionsCallCount += 1
+        if shouldSuspendGetDirections {
+            getDirectionsEnteredContinuation?.resume()
+            getDirectionsEnteredContinuation = nil
+            await withCheckedContinuation { continuation in
+                getDirectionsContinuation = continuation
+            }
+        }
+        if let error = getDirectionsError { throw error }
+        return getDirectionsResult ?? []
     }
 
     func getStops(route: String, direction: String) async throws -> [BusStop] {
