@@ -131,15 +131,15 @@ private let trainFavorite = Favorite.train(TrainFavorite(
 
     @Test func pushSendsCorrectPathAndBody() async throws {
         let mock = MockAPIClient()
-        mock.postResult = SaveFavoritesResponse(id: "test-device-id", favorites: [])
+        await mock.setPostResult(SaveFavoritesResponse(id: "test-device-id", favorites: []))
         let (repo, _, container) = try makeRepo(mock: mock)
         _ = container
 
         try repo.add(busFavorite)
         try await repo.pushToRemote()
 
-        #expect(mock.lastPostPath == "savefavorites")
-        let body = mock.lastPostBody as? SaveFavoritesRequestBody
+        #expect(await mock.lastPostPath == "savefavorites")
+        let body = await mock.lastPostBody as? SaveFavoritesRequestBody
         #expect(body?.id == "test-device-id")
         #expect(body?.favorites.count == 1)
         #expect(body?.favorites[0].route == "20")
@@ -148,19 +148,19 @@ private let trainFavorite = Favorite.train(TrainFavorite(
 
     @Test func pushWithEmptyStoreSendsEmptyArray() async throws {
         let mock = MockAPIClient()
-        mock.postResult = SaveFavoritesResponse(id: "test-device-id", favorites: [])
+        await mock.setPostResult(SaveFavoritesResponse(id: "test-device-id", favorites: []))
         let (repo, _, container) = try makeRepo(mock: mock)
         _ = container
 
         try await repo.pushToRemote()
 
-        let body = mock.lastPostBody as? SaveFavoritesRequestBody
+        let body = await mock.lastPostBody as? SaveFavoritesRequestBody
         #expect(body?.favorites.isEmpty == true)
     }
 
     @Test func pushPropagatesErrors() async throws {
         let mock = MockAPIClient()
-        mock.postError = APIError.networkError(URLError(.notConnectedToInternet))
+        await mock.setPostError(APIError.networkError(URLError(.notConnectedToInternet)))
         let (repo, _, container) = try makeRepo(mock: mock)
         _ = container
 
@@ -188,14 +188,14 @@ private let trainFavorite = Favorite.train(TrainFavorite(
             FavoriteDTO(route: "Red", stopId: "30089", stopName: "Howard", direction: "Service toward 95th/Dan Ryan", type: "train"),
             FavoriteDTO(route: "66", stopId: "789", stopName: "Clark & Lake", direction: "Westbound", type: "bus"),
         ]
-        mock.postResult = GetFavoritesResponse(id: "test-device-id", favorites: remoteFavorites)
+        await mock.setPostResult(GetFavoritesResponse(id: "test-device-id", favorites: remoteFavorites))
 
         try await repo.pullFromRemote()
 
         let all = repo.getAll()
         #expect(all.count == 2)
-        #expect(mock.lastPostPath == "myfavorites")
-        let body = mock.lastPostBody as? GetFavoritesRequestBody
+        #expect(await mock.lastPostPath == "myfavorites")
+        let body = await mock.lastPostBody as? GetFavoritesRequestBody
         #expect(body?.id == "test-device-id")
     }
 
@@ -205,7 +205,7 @@ private let trainFavorite = Favorite.train(TrainFavorite(
         _ = container
 
         try repo.add(busFavorite)
-        mock.postResult = GetFavoritesResponse(id: "test-device-id", favorites: [])
+        await mock.setPostResult(GetFavoritesResponse(id: "test-device-id", favorites: []))
 
         try await repo.pullFromRemote()
 
@@ -222,7 +222,7 @@ private let trainFavorite = Favorite.train(TrainFavorite(
             FavoriteDTO(route: "Red", stopId: "30089", stopName: "Howard", direction: "Service toward 95th/Dan Ryan", type: "train"),
             FavoriteDTO(route: "20", stopId: "456", stopName: "State & Lake", direction: "Eastbound", type: "bus"),
         ]
-        mock.postResult = GetFavoritesResponse(id: "test-device-id", favorites: remoteFavorites)
+        await mock.setPostResult(GetFavoritesResponse(id: "test-device-id", favorites: remoteFavorites))
 
         try await repo.pullFromRemote()
 
@@ -235,7 +235,7 @@ private let trainFavorite = Favorite.train(TrainFavorite(
 
     @Test func pullPropagatesErrors() async throws {
         let mock = MockAPIClient()
-        mock.postError = APIError.networkError(URLError(.timedOut))
+        await mock.setPostError(APIError.networkError(URLError(.timedOut)))
         let (repo, _, container) = try makeRepo(mock: mock)
         _ = container
 

@@ -1,15 +1,19 @@
 import Foundation
 
-struct BusStop: Equatable, Sendable, Identifiable {
+nonisolated struct BusStop: Equatable, Sendable, Identifiable, Codable {
     let id: String
     let name: String
     let latitude: Double
     let longitude: Double
 
+    init(id: String, name: String, latitude: Double, longitude: Double) {
+        self.id = id
+        self.name = name
+        self.latitude = latitude
+        self.longitude = longitude
+    }
+
     init(from dto: BusStopDTO) {
-        self.id = dto.stpid
-        self.name = dto.stpnm
-        self.latitude = dto.lat
-        self.longitude = dto.lon
+        self.init(id: dto.stpid, name: dto.stpnm, latitude: dto.lat, longitude: dto.lon)
     }
 }

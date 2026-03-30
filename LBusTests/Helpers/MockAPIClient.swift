@@ -1,18 +1,25 @@
 import Foundation
 @testable import LBus
 
-final class MockAPIClient: APIClientProtocol, @unchecked Sendable {
-    var getResult: Any?
-    var getError: Error?
-    var lastPath: String?
-    var lastQueryItems: [URLQueryItem]?
+actor MockAPIClient: APIClientProtocol {
+    private(set) var getResult: Any?
+    private(set) var getError: Error?
+    private(set) var getCallCount = 0
+    private(set) var lastPath: String?
+    private(set) var lastQueryItems: [URLQueryItem]?
 
-    var postResult: Any?
-    var postError: Error?
-    var lastPostPath: String?
-    var lastPostBody: (any Encodable)?
+    private(set) var postResult: Any?
+    private(set) var postError: Error?
+    private(set) var lastPostPath: String?
+    private(set) var lastPostBody: (any Encodable & Sendable)?
+
+    func setGetResult(_ value: Any?) { getResult = value }
+    func setGetError(_ error: Error?) { getError = error }
+    func setPostResult(_ value: Any?) { postResult = value }
+    func setPostError(_ error: Error?) { postError = error }
 
     func get<T: Decodable>(path: String, queryItems: [URLQueryItem]) async throws -> T {
+        getCallCount += 1
         lastPath = path
         lastQueryItems = queryItems
         if let error = getError { throw error }

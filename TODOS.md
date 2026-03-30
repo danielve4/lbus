@@ -120,20 +120,40 @@ Implement the settings screen with theme selection (system/light/dark), auto-ref
 - [x] Settings screen accessible from the Settings tab
 
 ### TODO 3.2 -- Auto-refresh timer utility
-- [ ] Complete
+- [x] Complete
 
 Build a shared refresh policy. Usable by any ViewModel needing periodic refresh. Respects the auto-refresh on/off setting.
 
 **Acceptance Criteria:**
-- [ ] Policy that ViewModels can adopt for periodic refresh
-- [ ] Respects auto-refresh on/off setting
-- [ ] Pauses on view disappear, resumes on view appear
-- [ ] Provides a `lastUpdated` timestamp for the UI
-- [ ] Supports manual refresh alongside automatic
+- [x] Policy that ViewModels can adopt for periodic refresh
+- [x] Respects auto-refresh on/off setting
+- [x] Pauses on view disappear, resumes on view appear
+- [x] Provides a `lastUpdated` timestamp for the UI
+- [x] Supports manual refresh alongside automatic
 
 ---
 
 ## Group 4: Bus Feature Screens
+
+### TODO 4.0 -- Persistent cache for routes, directions, and stops
+- [x] Complete
+
+Build a persistent cache for route-browsing metadata. Cache bus routes from `/busroutes`, train route-browsing data from `/traindata`, bus directions from `/busroutedirections`, and bus stops from `/busroutestops`. The cache must survive app quits and device restarts. Cached entries expire after 1 week. When expired cached data exists, the app should display the cached data immediately, then refresh it in the background so the next visit uses the newest available data. Do not cache any live arrival or follow data.
+
+**Acceptance Criteria:**
+- [x] Bus routes are cached persistently after a successful fetch
+- [x] Train route-browsing data from `/traindata` is cached persistently after a successful fetch
+- [x] Bus directions are cached persistently per route
+- [x] Bus stops are cached persistently per route + direction
+- [x] Cached route-browsing data remains available after app quit/relaunch and device restart
+- [x] Cached route-browsing entries expire after 1 week
+- [x] If expired cached route-browsing data exists, the app displays the cached data immediately and refreshes in the background
+- [x] Background refresh updates the stored cache for the next visit
+- [x] Bus arrivals are never read from or written to cache
+- [x] Train arrivals are never read from or written to cache
+- [x] Bus follow data is never read from or written to cache
+- [x] Train follow data is never read from or written to cache
+- [x] Unit tests cover cache hits, persistence across launches, expiry behavior, stale-while-revalidate behavior, and no-arrivals-caching rules
 
 ### TODO 4.1 -- Routes screen (bus routes + train lines with search)
 - [ ] Complete
@@ -146,6 +166,7 @@ Build the Routes screen displaying both bus routes and train lines in a searchab
 - [ ] Selecting a bus route pushes bus direction screen
 - [ ] Selecting a train line pushes train stations screen
 - [ ] Loading, error, and empty states handled
+- [ ] While loading, a shimmer effect is shown in place of the lists
 
 ### TODO 4.2 -- Bus directions screen
 - [ ] Complete

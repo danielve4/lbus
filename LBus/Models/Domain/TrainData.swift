@@ -1,6 +1,6 @@
 import Foundation
 
-struct TrainData: Equatable, Sendable {
+nonisolated struct TrainData: Equatable, Sendable, Codable {
     let lines: [TrainLine]
     let stations: [TrainStation]
     let stopSequences: [TrainStopSequence]
