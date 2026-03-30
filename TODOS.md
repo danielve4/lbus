@@ -156,17 +156,17 @@ Build a persistent cache for route-browsing metadata. Cache bus routes from `/bu
 - [x] Unit tests cover cache hits, persistence across launches, expiry behavior, stale-while-revalidate behavior, and no-arrivals-caching rules
 
 ### TODO 4.1 -- Routes screen (bus routes + train lines with search)
-- [ ] Complete
+- [x] Complete
 
 Build the Routes screen displaying both bus routes and train lines in a searchable list. Bus routes from the API, train lines from `/traindata`. Tapping a bus route navigates to bus directions; tapping a train line navigates to train stations.
 
 **Acceptance Criteria:**
-- [ ] Displays train lines section and bus routes section
-- [ ] Search field filters both lists by route ID and name
-- [ ] Selecting a bus route pushes bus direction screen
-- [ ] Selecting a train line pushes train stations screen
-- [ ] Loading, error, and empty states handled
-- [ ] While loading, a shimmer effect is shown in place of the lists
+- [x] Displays train lines section and bus routes section
+- [x] Search field filters both lists by route ID and name
+- [x] Selecting a bus route pushes bus direction screen
+- [x] Selecting a train line pushes train stations screen
+- [x] Loading, error, and empty states handled
+- [x] While loading, a shimmer effect is shown in place of the lists
 
 ### TODO 4.2 -- Bus directions screen
 - [ ] Complete
@@ -179,6 +179,7 @@ Show available directions for a selected bus route. Selecting a direction procee
 - [ ] Selecting a direction pushes bus stops screen
 - [ ] Loading, error, and empty states handled
 - [ ] Back navigation returns to routes
+- [ ] While loading, a shimmer effect is shown in place of the lists
 
 ### TODO 4.3 -- Bus stops screen (with search and favorite)
 - [ ] Complete
@@ -192,7 +193,8 @@ Show stops for a selected route+direction. Each stop shows name, stop ID, and a 
 - [ ] Tapping a stop pushes bus arrivals screen
 - [ ] Favorite toggle adds/removes with correct context (route, direction, name, stop ID)
 - [ ] Loading, error, and empty states handled
-
+- [ ] While loading, a shimmer effect is shown in place of the lists
+  
 ### TODO 4.4 -- Bus arrivals screen
 - [ ] Complete
 
@@ -205,6 +207,7 @@ Show real-time arrivals for a bus stop. Header with stop info and favorite contr
 - [ ] Empty state when no arrivals
 - [ ] Auto-refresh every 30s, manual refresh, last-updated timestamp
 - [ ] Tapping an arrival pushes bus follow screen for that vehicle
+- [ ] While loading, a shimmer effect is shown in place of the lists
 
 ### TODO 4.5 -- Bus follow screen
 - [ ] Complete
@@ -217,6 +220,7 @@ Show upcoming stops for a tracked bus vehicle. Highlight the originating stop. A
 - [ ] Originating stop visually highlighted
 - [ ] Auto-refresh every 30s, manual refresh
 - [ ] Loading, error, and empty states handled
+- [ ] While loading, a shimmer effect is shown in place of the lists
 
 ---
 
@@ -248,6 +252,7 @@ Show real-time arrivals for a station, grouped by line and direction. Header wit
 - [ ] Auto-refresh every 30s, manual refresh, last-updated timestamp
 - [ ] Tapping an arrival pushes train follow screen
 - [ ] Empty state when no arrivals
+- [ ] While loading, a shimmer effect is shown in place of the lists
 
 ### TODO 5.3 -- Train follow screen
 - [ ] Complete
@@ -260,6 +265,7 @@ Show upcoming stations for a tracked train run. Highlight the originating statio
 - [ ] Originating station visually highlighted
 - [ ] Auto-refresh every 30s, manual refresh
 - [ ] Loading, error, and empty states handled
+- [ ] While loading, a shimmer effect is shown in place of the lists
 
 ---
 
