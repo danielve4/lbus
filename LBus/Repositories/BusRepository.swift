@@ -157,7 +157,7 @@ final class BusRepository: BusRepositoryProtocol {
 
     private func throwIfAPIError(_ errors: [BusAPIError]?) throws {
         if let message = errors?.first?.msg {
-            if message == "No arrival times" { return }
+            if message == "No arrival times" || message == "No service scheduled" { return }
             throw APIError.apiError(message: message)
         }
     }

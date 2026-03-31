@@ -211,6 +211,13 @@ Show real-time arrivals for a bus stop. Header with stop info and favorite contr
 - [x] Tapping an arrival pushes bus follow screen for that vehicle
 - [x] While loading, a shimmer effect is shown in place of the lists
 
+### TODO 4.41 -- Bus arrivals screen
+- [ ] Complete
+
+Address the following issues in the bus arrivals screen:
+- [ ] The last refreshed label always shows "Updated now" instead of the actual timestamp.
+- [ ] The shimmer loading effect should only be visible on the initial load, not during subsequent auto-refreshes or manual refreshes. However, to indicate a refresh ocurred, the arrival rows should shimmer without hiding the list. It is only to show the refresh happened, not to indicate loading. To indicate loading, the refresh button should show a ProgressView while the refresh is in-flight.
+
 ### TODO 4.5 -- Bus follow screen
 - [ ] Complete
 

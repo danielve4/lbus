@@ -259,6 +259,32 @@ private func makePredictionDTO(
         #expect(arrivals.isEmpty)
     }
 
+    @Test func getArrivalsReturnsEmptyForNoArrivalTimes() async throws {
+        let mock = MockAPIClient()
+        await mock.setGetResult(BusPredictionsResponse(
+            prd: nil,
+            error: [BusAPIError(msg: "No arrival times", rt: nil, rtdir: nil, stpid: "456", vid: nil)]
+        ))
+        let repo = BusRepository(apiClient: mock, cache: MockPersistentCache())
+
+        let arrivals = try await repo.getArrivals(stopId: "456")
+
+        #expect(arrivals.isEmpty)
+    }
+
+    @Test func getArrivalsReturnsEmptyForNoServiceScheduled() async throws {
+        let mock = MockAPIClient()
+        await mock.setGetResult(BusPredictionsResponse(
+            prd: nil,
+            error: [BusAPIError(msg: "No service scheduled", rt: nil, rtdir: nil, stpid: "456", vid: nil)]
+        ))
+        let repo = BusRepository(apiClient: mock, cache: MockPersistentCache())
+
+        let arrivals = try await repo.getArrivals(stopId: "456")
+
+        #expect(arrivals.isEmpty)
+    }
+
     @Test func getArrivalsThrowsOnAPIError() async throws {
         let mock = MockAPIClient()
         await mock.setGetResult(BusPredictionsResponse(

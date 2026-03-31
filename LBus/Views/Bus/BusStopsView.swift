@@ -70,6 +70,6 @@ struct BusStopsView: View {
                 }
             }
         }
-        .searchable(text: $searchText, prompt: "Search stops")
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search stops")
     }
 }

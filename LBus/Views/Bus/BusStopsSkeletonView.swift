@@ -13,6 +13,7 @@ struct BusStopsSkeletonView: View {
                 .modifier(ShimmerModifier())
             }
         }
+        .searchable(text: .constant(""), placement: .navigationBarDrawer(displayMode: .always), prompt: "Search stops")
     }
 }
 
