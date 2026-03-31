@@ -5,6 +5,7 @@ struct RootView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage(SettingsKeys.theme) private var theme: AppTheme = .system
     @State private var selectedTab: AppTab = .home
+    @State private var favoritesRepository: FavoritesRepository?
 
     private let apiClient: APIClient
     private let busRepository: BusRepository
@@ -18,6 +19,26 @@ struct RootView: View {
     }
 
     var body: some View {
+        Group {
+            if let favoritesRepository {
+                mainContent(favoritesRepository: favoritesRepository)
+            } else {
+                Color.clear
+            }
+        }
+        .task {
+            if favoritesRepository == nil {
+                favoritesRepository = FavoritesRepository(
+                    modelContext: modelContext,
+                    apiClient: apiClient,
+                    deviceIdentifier: DeviceIdentifier()
+                )
+            }
+        }
+        .preferredColorScheme(theme.colorScheme)
+    }
+
+    private func mainContent(favoritesRepository: FavoritesRepository) -> some View {
         TabView(selection: $selectedTab) {
             Tab("Home", systemImage: "house", value: .home) {
                 NavigationStack {
@@ -30,30 +51,29 @@ struct RootView: View {
                         busRepository: busRepository,
                         trainRepository: trainRepository
                     )
-                    .modifier(TransitNavigationDestinations(busRepository: busRepository, trainRepository: trainRepository))
+                    .modifier(TransitNavigationDestinations(
+                        busRepository: busRepository,
+                        trainRepository: trainRepository,
+                        favoritesRepository: favoritesRepository
+                    ))
                 }
             }
             Tab("Favorites", systemImage: "star", value: .favorites) {
                 NavigationStack {
                     FavoritesPlaceholderView()
-                        .modifier(TransitNavigationDestinations(busRepository: busRepository, trainRepository: trainRepository))
+                        .modifier(TransitNavigationDestinations(
+                            busRepository: busRepository,
+                            trainRepository: trainRepository,
+                            favoritesRepository: favoritesRepository
+                        ))
                 }
             }
             Tab("Settings", systemImage: "gear", value: .settings) {
                 NavigationStack {
-                    SettingsView(favoritesRepository: makeFavoritesRepository())
+                    SettingsView(favoritesRepository: favoritesRepository)
                 }
             }
         }
-        .preferredColorScheme(theme.colorScheme)
-    }
-
-    private func makeFavoritesRepository() -> FavoritesRepository {
-        FavoritesRepository(
-            modelContext: modelContext,
-            apiClient: apiClient,
-            deviceIdentifier: DeviceIdentifier()
-        )
     }
 }
 

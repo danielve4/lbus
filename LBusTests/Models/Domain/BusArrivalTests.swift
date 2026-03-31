@@ -97,6 +97,7 @@ import Testing
 
     @Test func computedIdIsComposite() {
         let arrival = BusArrival(from: makeDTO(stpid: "456", vid: "8184", rt: "20"))
-        #expect(arrival.id == "8184-456-20")
+        let epoch = String(arrival.predictedArrival.timeIntervalSince1970)
+        #expect(arrival.id == "8184-456-20-\(epoch)")
     }
 }

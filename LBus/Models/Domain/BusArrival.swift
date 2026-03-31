@@ -6,7 +6,7 @@ enum ArrivalCountdown: Equatable, Sendable {
 }
 
 struct BusArrival: Equatable, Sendable, Identifiable {
-    var id: String { vehicleId + "-" + stopId + "-" + route }
+    var id: String { vehicleId + "-" + stopId + "-" + route + "-" + String(predictedArrival.timeIntervalSince1970) }
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -28,31 +28,64 @@ struct BusArrival: Equatable, Sendable, Identifiable {
     let isDelayed: Bool
     let countdown: ArrivalCountdown
 
+    init(
+        timestamp: Date,
+        stopId: String,
+        stopName: String,
+        vehicleId: String,
+        distanceToStop: Int,
+        route: String,
+        routeDirection: String,
+        destination: String,
+        predictedArrival: Date,
+        isDelayed: Bool,
+        countdown: ArrivalCountdown
+    ) {
+        self.timestamp = timestamp
+        self.stopId = stopId
+        self.stopName = stopName
+        self.vehicleId = vehicleId
+        self.distanceToStop = distanceToStop
+        self.route = route
+        self.routeDirection = routeDirection
+        self.destination = destination
+        self.predictedArrival = predictedArrival
+        self.isDelayed = isDelayed
+        self.countdown = countdown
+    }
+
     init(from dto: BusPredictionDTO) {
         // Falls back to Date() if parsing fails — silent, keeps UI from crashing
         // but countdown values will be wrong. Check timestamps if debugging odd countdowns.
-        self.timestamp = Self.dateFormatter.date(from: dto.tmstmp) ?? Date()
-        self.stopId = dto.stpid
-        self.stopName = dto.stpnm
-        self.vehicleId = dto.vid
-        self.distanceToStop = dto.dstp
-        self.route = dto.rt
-        self.routeDirection = dto.rtdir
-        self.destination = dto.des
-        self.predictedArrival = Self.dateFormatter.date(from: dto.prdtm) ?? Date()
-        self.isDelayed = dto.dly
+        let timestamp = Self.dateFormatter.date(from: dto.tmstmp) ?? Date()
+        let predictedArrival = Self.dateFormatter.date(from: dto.prdtm) ?? Date()
 
+        let countdown: ArrivalCountdown
         if let prdctdn = dto.prdctdn {
             if prdctdn.uppercased() == "DUE" {
-                self.countdown = .due
+                countdown = .due
             } else if let minutes = Int(prdctdn) {
-                self.countdown = .minutes(minutes)
+                countdown = .minutes(minutes)
             } else {
-                self.countdown = .due
+                countdown = .due
             }
         } else {
-            let diff = Int(self.predictedArrival.timeIntervalSince(self.timestamp) / 60)
-            self.countdown = diff <= 0 ? .due : .minutes(diff)
+            let diff = Int(predictedArrival.timeIntervalSince(timestamp) / 60)
+            countdown = diff <= 0 ? .due : .minutes(diff)
         }
+
+        self.init(
+            timestamp: timestamp,
+            stopId: dto.stpid,
+            stopName: dto.stpnm,
+            vehicleId: dto.vid,
+            distanceToStop: dto.dstp,
+            route: dto.rt,
+            routeDirection: dto.rtdir,
+            destination: dto.des,
+            predictedArrival: predictedArrival,
+            isDelayed: dto.dly,
+            countdown: countdown
+        )
     }
 }

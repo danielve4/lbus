@@ -182,32 +182,34 @@ Show available directions for a selected bus route. Selecting a direction procee
 - [x] While loading, a shimmer effect is shown in place of the lists
 
 ### TODO 4.3 -- Bus stops screen (with search and favorite)
-- [ ] Complete
+- [x] Complete
 
 Show stops for a selected route+direction. Each stop shows name, stop ID, and a favorite toggle. List is searchable. Tapping a stop navigates to bus arrivals.
 
 **Acceptance Criteria:**
-- [ ] Route and direction context in header
-- [ ] Stop rows with name, stop ID, and favorite toggle
-- [ ] Search field filters the stop list
-- [ ] Tapping a stop pushes bus arrivals screen
-- [ ] Favorite toggle adds/removes with correct context (route, direction, name, stop ID)
-- [ ] Loading, error, and empty states handled
-- [ ] While loading, a shimmer effect is shown in place of the lists
+- [x] Route and direction context in header
+- [x] Stop rows with name, stop ID, and favorite toggle
+- [x] Search field filters the stop list
+- [x] Tapping a stop pushes bus arrivals screen
+- [x] ~~Favorite toggle~~ Removed from stops screen; favorites managed on arrivals screen instead
+- [x] Loading, error, and empty states handled
+- [x] While loading, a shimmer effect is shown in place of the lists
   
 ### TODO 4.4 -- Bus arrivals screen
-- [ ] Complete
+- [x] Complete
 
 Show real-time arrivals for a bus stop. Header with stop info and favorite control. Arrival list with timing/delay info. Auto-refresh, manual refresh, last-updated display.
 
+> **Note:** `RootView.makeFavoritesRepository()` was fixed — now uses `@State` for a single shared instance.
+
 **Acceptance Criteria:**
-- [ ] Header: stop name, stop ID, favorite control
-- [ ] Each arrival: route number, direction, destination, distance (if available), countdown, clock time, day context, delayed badge
-- [ ] "Due" when imminent; "X min" countdown otherwise
-- [ ] Empty state when no arrivals
-- [ ] Auto-refresh every 30s, manual refresh, last-updated timestamp
-- [ ] Tapping an arrival pushes bus follow screen for that vehicle
-- [ ] While loading, a shimmer effect is shown in place of the lists
+- [x] Header: stop name, stop ID, favorite control
+- [x] Each arrival: route number, direction, destination, distance (if available), countdown, clock time, day context, delayed badge
+- [x] "Due" when imminent; "X min" countdown otherwise
+- [x] Empty state when no arrivals
+- [x] Auto-refresh every 30s, manual refresh, last-updated timestamp
+- [x] Tapping an arrival pushes bus follow screen for that vehicle
+- [x] While loading, a shimmer effect is shown in place of the lists
 
 ### TODO 4.5 -- Bus follow screen
 - [ ] Complete
@@ -275,6 +277,8 @@ Show upcoming stations for a tracked train run. Highlight the originating statio
 - [ ] Complete
 
 Show all saved favorites with remove/clear-all, empty state, and navigation to the correct arrivals screen. Bus favorites open bus arrivals; train favorites open train arrivals (with line context if saved).
+
+> **Note:** Ensure `RootView` uses a single shared `FavoritesRepository` instance rather than calling `makeFavoritesRepository()` inside `body` (see TODO 4.4 note).
 
 **Acceptance Criteria:**
 - [ ] Lists favorites showing: name, transit type (bus/train), route/line context, direction when available

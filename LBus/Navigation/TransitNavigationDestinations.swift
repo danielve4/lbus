@@ -3,6 +3,7 @@ import SwiftUI
 struct TransitNavigationDestinations: ViewModifier {
     let busRepository: BusRepositoryProtocol
     let trainRepository: TrainRepositoryProtocol
+    let favoritesRepository: FavoritesRepositoryProtocol
 
     func body(content: Content) -> some View {
         content
@@ -11,9 +12,9 @@ struct TransitNavigationDestinations: ViewModifier {
                 case .directions(let route):
                     BusDirectionsView(route: route, busRepository: busRepository)
                 case .stops(let route, let direction):
-                    Text("Stops for \(route.name) - \(direction)")
-                case .arrivals(let stopId, let stopName, _, _):
-                    Text("Arrivals for \(stopName) (\(stopId))")
+                    BusStopsView(route: route, direction: direction, busRepository: busRepository)
+                case .arrivals(let stopId, let stopName, let route, let direction):
+                    BusArrivalsView(stopId: stopId, stopName: stopName, route: route, direction: direction, busRepository: busRepository, favoritesRepository: favoritesRepository)
                 case .follow(let vehicleId, _):
                     Text("Following bus \(vehicleId)")
                 }
