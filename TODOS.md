@@ -65,6 +65,17 @@ Set up the root `TabView` with four tabs: Home, Routes, Favorites, Settings. Eac
 - [x] Navigation destination types defined for: bus directions, bus stops, bus arrivals, bus follow, train stations, train arrivals, train follow
 - [x] App launches and displays the tab bar with placeholder screens
 
+### TODO 1.5 -- App navigation refactor
+- [x] Complete
+
+Refactor the root `TabView` to have 3 Tabs instead of 4: Favorites, Settings, and a 3rd one with the role as .search that contains the Routes screen as the root of its NavigationStack. The Home tab is removed, and the Favorites is now the landing screen when the app opens. The Routes screen is still accessible via the .search tab, and the Settings screen is still accessible via the Settings tab.
+
+**Acceptance Criteria:**
+- [x] `TabView` with three tabs: Favorites (landing), Settings, and Search (with Routes as root)
+- [x] Home tab removed and logic updated so Favorites is the initial screen on app launch
+- [x] If user does not have any favorites, the Favorites tab shows a welcome message and prompts them to explore routes to add favorites
+- [x] Routes screen still accessible via Search tab, Settings still accessible via Settings tab
+- [x] No existing navigation tests reference AppTab or placeholder views; no test updates needed
 ---
 
 ## Group 2: Data Layer
@@ -212,11 +223,15 @@ Show real-time arrivals for a bus stop. Header with stop info and favorite contr
 - [x] While loading, a shimmer effect is shown in place of the lists
 
 ### TODO 4.41 -- Bus arrivals screen
-- [ ] Complete
+- [x] Complete
 
 Address the following issues in the bus arrivals screen:
-- [ ] The last refreshed label always shows "Updated now" instead of the actual timestamp.
-- [ ] The shimmer loading effect should only be visible on the initial load, not during subsequent auto-refreshes or manual refreshes. However, to indicate a refresh ocurred, the arrival rows should shimmer without hiding the list. It is only to show the refresh happened, not to indicate loading. To indicate loading, the refresh button should show a ProgressView while the refresh is in-flight.
+- [x] Under the stop name, add a subtitle showing the direction for the stop. And next to it, the last udpated timestamp. So it would be like:
+
+```Stop Name
+Direction | Last refreshed at HH:mm:ss PM/AM
+```
+- [x] The shimmer loading effect should only be visible on the initial load, not during subsequent auto-refreshes or manual refreshes. However, to indicate a refresh ocurred, the arrival rows should shimmer without hiding the list. It is only to show the refresh happened, not to indicate loading. To indicate loading, the refresh button should show a ProgressView while the refresh is in-flight.
 
 ### TODO 4.5 -- Bus follow screen
 - [ ] Complete
@@ -287,6 +302,8 @@ Show all saved favorites with remove/clear-all, empty state, and navigation to t
 
 > **Note:** Ensure `RootView` uses a single shared `FavoritesRepository` instance rather than calling `makeFavoritesRepository()` inside `body` (see TODO 4.4 note).
 
+> **Note:** `FavoritesView` shell with empty-state welcome message and read-only minimal list was introduced in TODO 1.5. This TODO builds on that foundation — adding row removal, clear-all, NavigationLinks to arrivals, and reactive data updates.
+
 **Acceptance Criteria:**
 - [ ] Lists favorites showing: name, transit type (bus/train), route/line context, direction when available
 - [ ] Remove control per row
@@ -301,14 +318,16 @@ Show all saved favorites with remove/clear-all, empty state, and navigation to t
 ## Group 7: Home
 
 ### TODO 7.1 -- Home screen
-- [ ] Complete
+- [x] Cancelled — superseded by TODO 1.5
 
-Build the Home tab as the app's landing screen. Displays app title and welcome context. Handles loading, success, and retry states if startup data loading is needed.
+The Home tab was removed in the navigation refactor (TODO 1.5). Favorites is now the landing screen. This TODO is no longer applicable.
+
+~~Build the Home tab as the app's landing screen. Displays app title and welcome context. Handles loading, success, and retry states if startup data loading is needed.~~
 
 **Acceptance Criteria:**
-- [ ] Displays "CTA Tracker" title and welcome/landing content
-- [ ] Loading state and retry on failure if pre-loading startup data
-- [ ] Success state presents the landing experience
+- ~~Displays "CTA Tracker" title and welcome/landing content~~
+- ~~Loading state and retry on failure if pre-loading startup data~~
+- ~~Success state presents the landing experience~~
 
 ---
 
@@ -321,4 +340,4 @@ Build the Home tab as the app's landing screen. Displays app title and welcome c
 | 3 | 2.1, 2.2, 2.3, 3.1, 3.2 | Repositories and shared infrastructure |
 | 4 | 4.1, 4.2, 4.3, 4.4, 4.5 | Full bus flow -- validates the full stack |
 | 5 | 5.1, 5.2, 5.3 | Full train flow -- builds on bus patterns |
-| 6 | 6.1, 7.1 | Favorites and Home |
+| 6 | 6.1 | Favorites (Home removed in 1.5) |

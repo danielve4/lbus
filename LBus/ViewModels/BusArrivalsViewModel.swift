@@ -14,6 +14,7 @@ final class BusArrivalsViewModel {
     private(set) var isLoading = true
     private(set) var error: String? = nil
     private(set) var isFavorite: Bool = false
+    private(set) var refreshCount: Int = 0
 
     let stopId: String
     let stopName: String
@@ -104,8 +105,12 @@ final class BusArrivalsViewModel {
     /// Errors propagate so the manager correctly withholds `lastUpdated` on failure.
     /// Stores errors in `lastFetchError` so `loadArrivals()` can surface them to the UI.
     private func fetchArrivals() async throws {
+        let hadArrivals = !arrivals.isEmpty
         do {
             arrivals = try await busRepository.getArrivals(stopId: stopId)
+            if hadArrivals {
+                refreshCount += 1
+            }
         } catch {
             lastFetchError = error
             throw error

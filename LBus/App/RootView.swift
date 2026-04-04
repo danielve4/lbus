@@ -4,7 +4,7 @@ import SwiftData
 struct RootView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage(SettingsKeys.theme) private var theme: AppTheme = .system
-    @State private var selectedTab: AppTab = .home
+    @State private var selectedTab: AppTab = .favorites
     @State private var favoritesRepository: FavoritesRepository?
 
     private let apiClient: APIClient
@@ -40,12 +40,20 @@ struct RootView: View {
 
     private func mainContent(favoritesRepository: FavoritesRepository) -> some View {
         TabView(selection: $selectedTab) {
-            Tab("Home", systemImage: "house", value: .home) {
+            Tab("Favorites", systemImage: "star", value: .favorites) {
                 NavigationStack {
-                    HomePlaceholderView()
+                    FavoritesView(
+                        favoritesRepository: favoritesRepository,
+                        onExploreRoutes: { selectedTab = .search }
+                    )
+                    .modifier(TransitNavigationDestinations(
+                        busRepository: busRepository,
+                        trainRepository: trainRepository,
+                        favoritesRepository: favoritesRepository
+                    ))
                 }
             }
-            Tab("Routes", systemImage: "bus", value: .routes) {
+            Tab(value: .search, role: .search) {
                 NavigationStack {
                     RoutesView(
                         busRepository: busRepository,
@@ -56,16 +64,6 @@ struct RootView: View {
                         trainRepository: trainRepository,
                         favoritesRepository: favoritesRepository
                     ))
-                }
-            }
-            Tab("Favorites", systemImage: "star", value: .favorites) {
-                NavigationStack {
-                    FavoritesPlaceholderView()
-                        .modifier(TransitNavigationDestinations(
-                            busRepository: busRepository,
-                            trainRepository: trainRepository,
-                            favoritesRepository: favoritesRepository
-                        ))
                 }
             }
             Tab("Settings", systemImage: "gear", value: .settings) {

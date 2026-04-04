@@ -1,8 +1,7 @@
 import Foundation
 
 enum AppTab: String, CaseIterable {
-    case home
-    case routes
     case favorites
+    case search
     case settings
 }

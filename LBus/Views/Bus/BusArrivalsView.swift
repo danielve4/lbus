@@ -2,6 +2,15 @@ import SwiftUI
 
 struct BusArrivalsView: View {
     @State private var viewModel: BusArrivalsViewModel
+    @State private var showRefreshShimmer = false
+
+    private static let refreshTimeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "h:mm:ss a"
+        f.timeZone = TimeZone(identifier: "America/Chicago")
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f
+    }()
 
     init(
         stopId: String,
@@ -71,6 +80,13 @@ struct BusArrivalsView: View {
         .onDisappear {
             viewModel.stopAutoRefresh()
         }
+        .onChange(of: viewModel.refreshCount) { _, _ in
+            showRefreshShimmer = true
+            Task {
+                try? await Task.sleep(for: .seconds(1.0))
+                showRefreshShimmer = false
+            }
+        }
     }
 
     private var arrivalsList: some View {
@@ -79,7 +95,7 @@ struct BusArrivalsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(viewModel.stopName)
                         .font(.headline)
-                    Text("Stop #\(viewModel.stopId)")
+                    Text(headerSubtitle)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -104,19 +120,19 @@ struct BusArrivalsView: View {
                         )) {
                             arrivalRow(arrival)
                         }
+                        .modifier(RefreshShimmerModifier(isActive: showRefreshShimmer))
                     }
                 }
             }
 
-            if let lastUpdated = viewModel.lastUpdated {
-                Section {
-                    Text("Updated \(lastUpdated.formatted(.relative(presentation: .named)))")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                        .frame(maxWidth: .infinity)
-                }
-            }
         }
+    }
+
+    private var headerSubtitle: String {
+        if let lastUpdated = viewModel.lastUpdated {
+            return "\(viewModel.direction) | Last refreshed at \(Self.refreshTimeFormatter.string(from: lastUpdated))"
+        }
+        return viewModel.direction
     }
 
     private func arrivalRow(_ arrival: BusArrival) -> some View {

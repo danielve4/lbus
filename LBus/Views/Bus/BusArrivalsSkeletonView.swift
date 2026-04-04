@@ -5,12 +5,10 @@ struct BusArrivalsSkeletonView: View {
         List {
             Section {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Placeholder Stop Name")
-                        .font(.headline)
-                    Text("Stop #00000")
+                    Text("Westbound | Last refreshed at 12:00:00 PM")
                         .font(.subheadline)
                 }
-                .redacted(reason: .placeholder)
+//                .redacted(reason: .placeholder)
                 .modifier(ShimmerModifier())
             }
 
