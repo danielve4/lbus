@@ -3,13 +3,17 @@ import SwiftUI
 struct BusStopsView: View {
     @State private var viewModel: BusStopsViewModel
     @State private var searchText = ""
+    var onStopSelected: ((BusNavigation) -> Void)?
+    var onClose: (() -> Void)?
 
-    init(route: BusRoute, direction: String, busRepository: BusRepositoryProtocol) {
+    init(route: BusRoute, direction: String, busRepository: BusRepositoryProtocol, onStopSelected: ((BusNavigation) -> Void)? = nil, onClose: (() -> Void)? = nil) {
         _viewModel = State(initialValue: BusStopsViewModel(
             route: route,
             direction: direction,
             busRepository: busRepository
         ))
+        self.onStopSelected = onStopSelected
+        self.onClose = onClose
     }
 
     var body: some View {
@@ -32,6 +36,13 @@ struct BusStopsView: View {
             }
         }
         .navigationTitle("Route \(viewModel.route.shortName) \(viewModel.direction)")
+        .toolbar {
+            if let onClose {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close", action: onClose)
+                }
+            }
+        }
         .task { await viewModel.loadStops() }
     }
 
@@ -54,22 +65,42 @@ struct BusStopsView: View {
                 }
             } else {
                 ForEach(filtered) { stop in
-                    NavigationLink(value: BusNavigation.arrivals(
-                        stopId: stop.id,
-                        stopName: stop.name,
-                        route: viewModel.route.id,
-                        direction: viewModel.direction
-                    )) {
-                        VStack(alignment: .leading) {
-                            Text(stop.name)
-                            Text("Stop #\(stop.id)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                    if let onStopSelected {
+                        Button {
+                            onStopSelected(BusNavigation.arrivals(
+                                stopId: stop.id,
+                                stopName: stop.name,
+                                route: viewModel.route.id,
+                                direction: viewModel.direction
+                            ))
+                        } label: {
+                            stopRow(stop)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        NavigationLink(value: BusNavigation.arrivals(
+                            stopId: stop.id,
+                            stopName: stop.name,
+                            route: viewModel.route.id,
+                            direction: viewModel.direction
+                        )) {
+                            stopRow(stop)
                         }
                     }
                 }
             }
         }
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search stops")
+    }
+
+    private func stopRow(_ stop: BusStop) -> some View {
+        VStack(alignment: .leading) {
+            Text(stop.name)
+            Text("Stop #\(stop.id)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
     }
 }

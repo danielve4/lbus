@@ -76,6 +76,7 @@ Refactor the root `TabView` to have 3 Tabs instead of 4: Favorites, Settings, an
 - [x] If user does not have any favorites, the Favorites tab shows a welcome message and prompts them to explore routes to add favorites
 - [x] Routes screen still accessible via Search tab, Settings still accessible via Settings tab
 - [x] No existing navigation tests reference AppTab or placeholder views; no test updates needed
+
 ---
 
 ## Group 2: Data Layer
@@ -205,7 +206,21 @@ Show stops for a selected route+direction. Each stop shows name, stop ID, and a 
 - [x] ~~Favorite toggle~~ Removed from stops screen; favorites managed on arrivals screen instead
 - [x] Loading, error, and empty states handled
 - [x] While loading, a shimmer effect is shown in place of the lists
-  
+
+### TODO 4.31 -- Bus directions and stops screens modal presentation
+- [x] Complete
+
+Present the bus directions and bus stops flow in a single modal sheet instead of pushing both screens on the app's main navigation stack. The routes screen opens a sheet whose root is the bus directions screen. The bus stops screen pushes within the sheet's own `NavigationStack`. When a stop is selected, the sheet dismisses and the bus arrivals screen is pushed onto the main navigation stack.
+
+> **Note:** Sheet ↔ navigation handoff is coordinated by `BusRouteSheetCoordinator` (extracted for testability). The search tab's `NavigationStack` now uses an explicit `NavigationPath` for programmatic navigation after sheet dismissal.
+
+**Acceptance Criteria:**
+- [x] Tapping a bus route from Routes presents a modal sheet whose root is the bus directions screen
+- [x] The modal sheet contains its own `NavigationStack`, and selecting a direction pushes the bus stops screen within that sheet
+- [x] The bus directions and bus stops screens each provide a clear "Close" button that dismisses the sheet
+- [x] Selecting a stop dismisses the sheet and then pushes the bus arrivals screen on the main navigation stack
+- [x] Dismissing the sheet via Close button or swipe does not push bus arrivals or otherwise alter the main navigation path
+
 ### TODO 4.4 -- Bus arrivals screen
 - [x] Complete
 
@@ -232,6 +247,16 @@ Address the following issues in the bus arrivals screen:
 Direction | Last refreshed at HH:mm:ss PM/AM
 ```
 - [x] The shimmer loading effect should only be visible on the initial load, not during subsequent auto-refreshes or manual refreshes. However, to indicate a refresh ocurred, the arrival rows should shimmer without hiding the list. It is only to show the refresh happened, not to indicate loading. To indicate loading, the refresh button should show a ProgressView while the refresh is in-flight.
+
+### TODO 4.42 -- Bus arrivals refresh behavior
+- [ ] Complete
+
+Instead of showing a refresh button, implement pull-to-refresh on the bus arrivals list. The refresh button is removed from the header. The user can pull down on the list to trigger a manual refresh.
+
+**Acceptance Criteria:**
+- [ ] Remove refresh button from the header
+- [ ] Implement pull-to-refresh on the arrivals list
+- [ ] While a manual refresh is in-flight
 
 ### TODO 4.5 -- Bus follow screen
 - [ ] Complete

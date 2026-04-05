@@ -2,12 +2,14 @@ import SwiftUI
 
 struct BusDirectionsView: View {
     @State private var viewModel: BusDirectionsViewModel
+    var onClose: (() -> Void)?
 
-    init(route: BusRoute, busRepository: BusRepositoryProtocol) {
+    init(route: BusRoute, busRepository: BusRepositoryProtocol, onClose: (() -> Void)? = nil) {
         _viewModel = State(initialValue: BusDirectionsViewModel(
             route: route,
             busRepository: busRepository
         ))
+        self.onClose = onClose
     }
 
     var body: some View {
@@ -30,6 +32,13 @@ struct BusDirectionsView: View {
             }
         }
         .navigationTitle("Route \(viewModel.route.shortName)")
+        .toolbar {
+            if let onClose {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close", action: onClose)
+                }
+            }
+        }
         .task { await viewModel.loadDirections() }
     }
 

@@ -4,6 +4,9 @@ A real-time Chicago Transit Authority (CTA) bus and train tracker. The applicati
 # TODOs
 Read TODOS.md for a comprehensive list of features and improvements planned for the app.
 
+# Planning mode
+While planning, ask any questions using the tool you have access to (e.g. AskUserQuestion, #tool:vscode/askQuestions) regarding the implementation of the TODO you are planning.
+
 # API Host
 https://cta.danielvega.dev
 

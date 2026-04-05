@@ -6,6 +6,7 @@ struct RootView: View {
     @AppStorage(SettingsKeys.theme) private var theme: AppTheme = .system
     @State private var selectedTab: AppTab = .favorites
     @State private var favoritesRepository: FavoritesRepository?
+    @State private var searchPath = NavigationPath()
 
     private let apiClient: APIClient
     private let busRepository: BusRepository
@@ -54,10 +55,11 @@ struct RootView: View {
                 }
             }
             Tab(value: .search, role: .search) {
-                NavigationStack {
+                NavigationStack(path: $searchPath) {
                     RoutesView(
                         busRepository: busRepository,
-                        trainRepository: trainRepository
+                        trainRepository: trainRepository,
+                        onNavigateToArrivals: { searchPath.append($0) }
                     )
                     .modifier(TransitNavigationDestinations(
                         busRepository: busRepository,

@@ -9,10 +9,9 @@ struct TransitNavigationDestinations: ViewModifier {
         content
             .navigationDestination(for: BusNavigation.self) { destination in
                 switch destination {
-                case .directions(let route):
-                    BusDirectionsView(route: route, busRepository: busRepository)
-                case .stops(let route, let direction):
-                    BusStopsView(route: route, direction: direction, busRepository: busRepository)
+                case .directions, .stops:
+                    // Handled within the modal sheet's own NavigationStack (see RoutesView)
+                    EmptyView()
                 case .arrivals(let stopId, let stopName, let route, let direction):
                     BusArrivalsView(stopId: stopId, stopName: stopName, route: route, direction: direction, busRepository: busRepository, favoritesRepository: favoritesRepository)
                 case .follow(let vehicleId, _):

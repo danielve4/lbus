@@ -3,8 +3,14 @@ import SwiftUI
 struct RoutesView: View {
     @State private var viewModel: RoutesViewModel
     @State private var searchText = ""
+    @State private var sheetCoordinator = BusRouteSheetCoordinator()
 
-    init(busRepository: BusRepositoryProtocol, trainRepository: TrainRepositoryProtocol) {
+    let busRepository: BusRepositoryProtocol
+    var onNavigateToArrivals: ((BusNavigation) -> Void)?
+
+    init(busRepository: BusRepositoryProtocol, trainRepository: TrainRepositoryProtocol, onNavigateToArrivals: ((BusNavigation) -> Void)? = nil) {
+        self.busRepository = busRepository
+        self.onNavigateToArrivals = onNavigateToArrivals
         _viewModel = State(initialValue: RoutesViewModel(
             busRepository: busRepository,
             trainRepository: trainRepository
@@ -32,6 +38,31 @@ struct RoutesView: View {
         }
         .navigationTitle("Routes")
         .task { await viewModel.loadData() }
+        .sheet(item: $sheetCoordinator.selectedRoute, onDismiss: {
+            sheetCoordinator.handleDismiss { onNavigateToArrivals?($0) }
+        }) { route in
+            NavigationStack {
+                BusDirectionsView(
+                    route: route,
+                    busRepository: busRepository,
+                    onClose: { sheetCoordinator.close() }
+                )
+                .navigationDestination(for: BusNavigation.self) { destination in
+                    switch destination {
+                    case .stops(let route, let direction):
+                        BusStopsView(
+                            route: route,
+                            direction: direction,
+                            busRepository: busRepository,
+                            onStopSelected: { sheetCoordinator.selectStop(navigation: $0) },
+                            onClose: { sheetCoordinator.close() }
+                        )
+                    default:
+                        EmptyView()
+                    }
+                }
+            }
+        }
     }
 
     private var routesList: some View {
@@ -52,9 +83,14 @@ struct RoutesView: View {
             if !filteredBusRoutes.isEmpty {
                 Section("Bus Routes") {
                     ForEach(filteredBusRoutes) { route in
-                        NavigationLink(value: BusNavigation.directions(route: route)) {
+                        Button {
+                            sheetCoordinator.selectRoute(route)
+                        } label: {
                             busRouteRow(route)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }
