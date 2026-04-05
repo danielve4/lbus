@@ -26,6 +26,7 @@ final class BusArrivalsViewModel {
     private(set) var refreshManager: AutoRefreshManagerProtocol
     private var isFetching = false
     private var lastFetchError: Error?
+    private var hasCompletedInitialLoad = false
 
     init(
         stopId: String,
@@ -55,7 +56,7 @@ final class BusArrivalsViewModel {
     }
 
     var screenState: ScreenState {
-        if isLoading && arrivals.isEmpty { return .loading }
+        if isLoading && arrivals.isEmpty && !hasCompletedInitialLoad { return .loading }
         if let error, arrivals.isEmpty { return .error(error) }
         return .loaded
     }
@@ -99,6 +100,9 @@ final class BusArrivalsViewModel {
 
         isLoading = false
         isFetching = false
+        if lastFetchError == nil {
+            hasCompletedInitialLoad = true
+        }
     }
 
     /// Throwing fetch used as the AutoRefreshManager action.

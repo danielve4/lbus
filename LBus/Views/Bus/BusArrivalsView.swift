@@ -59,17 +59,6 @@ struct BusArrivalsView: View {
                         .foregroundStyle(viewModel.isFavorite ? .yellow : .secondary)
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                if viewModel.isRefreshing {
-                    ProgressView()
-                } else {
-                    Button {
-                        Task { await viewModel.manualRefresh() }
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
-                    }
-                }
-            }
         }
         .task {
             await viewModel.initialLoad()
@@ -107,8 +96,12 @@ struct BusArrivalsView: View {
                 } description: {
                     Text("No arrivals predicted for this stop right now.")
                 } actions: {
-                    Button("Refresh") {
-                        Task { await viewModel.manualRefresh() }
+                    if viewModel.isLoading {
+                        ProgressView()
+                    } else {
+                        Button("Refresh") {
+                            Task { await viewModel.manualRefresh() }
+                        }
                     }
                 }
             } else {
@@ -125,6 +118,9 @@ struct BusArrivalsView: View {
                 }
             }
 
+        }
+        .refreshable {
+            await viewModel.manualRefresh()
         }
     }
 

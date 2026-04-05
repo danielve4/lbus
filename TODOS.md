@@ -249,14 +249,14 @@ Direction | Last refreshed at HH:mm:ss PM/AM
 - [x] The shimmer loading effect should only be visible on the initial load, not during subsequent auto-refreshes or manual refreshes. However, to indicate a refresh ocurred, the arrival rows should shimmer without hiding the list. It is only to show the refresh happened, not to indicate loading. To indicate loading, the refresh button should show a ProgressView while the refresh is in-flight.
 
 ### TODO 4.42 -- Bus arrivals refresh behavior
-- [ ] Complete
+- [x] Complete
 
 Instead of showing a refresh button, implement pull-to-refresh on the bus arrivals list. The refresh button is removed from the header. The user can pull down on the list to trigger a manual refresh.
 
 **Acceptance Criteria:**
-- [ ] Remove refresh button from the header
-- [ ] Implement pull-to-refresh on the arrivals list
-- [ ] While a manual refresh is in-flight
+- [x] Remove refresh button from the header
+- [x] Implement pull-to-refresh on the arrivals list
+- [x] While a manual refresh is in-flight, the native pull-to-refresh spinner is shown; skeleton is limited to initial load only
 
 ### TODO 4.5 -- Bus follow screen
 - [ ] Complete

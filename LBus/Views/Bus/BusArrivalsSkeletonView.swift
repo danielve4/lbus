@@ -8,7 +8,7 @@ struct BusArrivalsSkeletonView: View {
                     Text("Westbound | Last refreshed at 12:00:00 PM")
                         .font(.subheadline)
                 }
-//                .redacted(reason: .placeholder)
+                .redacted(reason: .placeholder)
                 .modifier(ShimmerModifier())
             }
 
