@@ -3,6 +3,15 @@ import SwiftUI
 struct BusArrivalsView: View {
     @State private var viewModel: BusArrivalsViewModel
     @State private var showRefreshShimmer = false
+    @State private var followTarget: FollowTarget?
+
+    private let busRepository: BusRepositoryProtocol
+
+    private struct FollowTarget: Identifiable {
+        let vehicleId: String
+        let stopId: String
+        var id: String { vehicleId }
+    }
 
     private static let refreshTimeFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -20,6 +29,7 @@ struct BusArrivalsView: View {
         busRepository: BusRepositoryProtocol,
         favoritesRepository: FavoritesRepositoryProtocol
     ) {
+        self.busRepository = busRepository
         _viewModel = State(initialValue: BusArrivalsViewModel(
             stopId: stopId,
             stopName: stopName,
@@ -76,6 +86,15 @@ struct BusArrivalsView: View {
                 showRefreshShimmer = false
             }
         }
+        .sheet(item: $followTarget) { target in
+            NavigationStack {
+                BusFollowView(
+                    vehicleId: target.vehicleId,
+                    stopId: target.stopId,
+                    busRepository: busRepository
+                )
+            }.presentationDetents([.medium, .large])
+        }
     }
 
     private var arrivalsList: some View {
@@ -110,12 +129,15 @@ struct BusArrivalsView: View {
                 } else {
                     LazyVStack(spacing: 0) {
                         ForEach(viewModel.arrivals) { arrival in
-                            NavigationLink(value: BusNavigation.follow(
-                                vehicleId: arrival.vehicleId,
-                                stopId: arrival.stopId
-                            )) {
+                            Button {
+                                followTarget = FollowTarget(
+                                    vehicleId: arrival.vehicleId,
+                                    stopId: arrival.stopId
+                                )
+                            } label: {
                                 arrivalRow(arrival)
                             }
+                            .buttonStyle(.plain)
                             .modifier(RefreshShimmerModifier(isActive: showRefreshShimmer))
 
                             Divider()

@@ -234,7 +234,7 @@ Show real-time arrivals for a bus stop. Header with stop info and favorite contr
 - [x] "Due" when imminent; "X min" countdown otherwise
 - [x] Empty state when no arrivals
 - [x] Auto-refresh every 30s, manual refresh, last-updated timestamp
-- [x] Tapping an arrival pushes bus follow screen for that vehicle
+- [x] Tapping an arrival presents bus follow screen for that vehicle in a modal
 - [x] While loading, a shimmer effect is shown in place of the lists
 
 ### TODO 4.41 -- Bus arrivals screen
@@ -272,17 +272,21 @@ Instead of showing a refresh button, implement pull-to-refresh on the bus arriva
 - [x] While a manual refresh is in-flight, the native pull-to-refresh spinner is shown; skeleton is limited to initial load only
 
 ### TODO 4.5 -- Bus follow screen
-- [ ] Complete
+- [x] Complete
 
-Show upcoming stops for a tracked bus vehicle. Highlight the originating stop. Auto-refresh and manual refresh.
+Show upcoming stops for a tracked bus vehicle in a modal. Highlight the originating stop. Auto-refresh and manual refresh.
+
+> **Note:** Presented as a sheet from the bus arrivals screen. `BusNavigation.follow` remains routable via `TransitNavigationDestinations` as a fallback.
+> **Note:** Follow-up complete: `BusFollowSkeletonView` header now mirrors loaded state with only destination + last-refreshed lines; vehicle ID and direction remain in navigation title.
 
 **Acceptance Criteria:**
-- [ ] Header: vehicle ID and follow context
-- [ ] Upcoming stops: stop name, stop ID, route, destination, countdown, delay status, direction
-- [ ] Originating stop visually highlighted
-- [ ] Auto-refresh every 30s, manual refresh
-- [ ] Loading, error, and empty states handled
-- [ ] While loading, a shimmer effect is shown in place of the lists
+- [x] Header: route (RT ##), vehicle ID, and direction; subtitle shows destination
+- [x] Upcoming stops: stop name, stop ID, countdown, clock time, delay status, distance
+- [x] Originating stop visually highlighted with pink accent bar, tinted background, and semibold text
+- [x] Auto-refresh every 30s
+- [x] Manual refresh via a refresh button in the bottom toolbar of the sheet
+- [x] Loading, error, and empty states handled
+- [x] While loading, a shimmer effect is shown in place of the lists
 
 ---
 

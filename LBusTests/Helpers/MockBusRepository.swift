@@ -170,7 +170,48 @@ actor MockBusRepository: BusRepositoryProtocol {
         return getArrivalsResult ?? []
     }
 
+    // MARK: - getFollow
+
+    private(set) var getFollowResult: [BusArrival]?
+    private(set) var getFollowError: Error?
+    private(set) var getFollowCalledWithVehicleId: String?
+    private(set) var getFollowCallCount = 0
+    private var shouldSuspendGetFollow = false
+    private var getFollowContinuation: CheckedContinuation<Void, Never>?
+    private var getFollowEnteredContinuation: CheckedContinuation<Void, Never>?
+    private var getFollowAlreadyCalled = false
+
+    func setGetFollowResult(_ value: [BusArrival]?) { getFollowResult = value }
+    func setGetFollowError(_ error: Error?) { getFollowError = error }
+    func setShouldSuspendGetFollow(_ value: Bool) { shouldSuspendGetFollow = value }
+
+    func waitForGetFollowCalled() async {
+        if getFollowAlreadyCalled { return }
+        await withCheckedContinuation { continuation in
+            getFollowEnteredContinuation = continuation
+        }
+    }
+
+    func resumeGetFollow() {
+        getFollowContinuation?.resume()
+        getFollowContinuation = nil
+    }
+
     func getFollow(vehicleId: String) async throws -> [BusArrival] {
-        fatalError("Not implemented")
+        getFollowCalledWithVehicleId = vehicleId
+        getFollowCallCount += 1
+        if shouldSuspendGetFollow {
+            if let entered = getFollowEnteredContinuation {
+                getFollowEnteredContinuation = nil
+                entered.resume()
+            } else {
+                getFollowAlreadyCalled = true
+            }
+            await withCheckedContinuation { continuation in
+                getFollowContinuation = continuation
+            }
+        }
+        if let error = getFollowError { throw error }
+        return getFollowResult ?? []
     }
 }

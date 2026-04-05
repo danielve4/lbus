@@ -14,8 +14,8 @@ struct TransitNavigationDestinations: ViewModifier {
                     EmptyView()
                 case .arrivals(let stopId, let stopName, let route, let direction):
                     BusArrivalsView(stopId: stopId, stopName: stopName, route: route, direction: direction, busRepository: busRepository, favoritesRepository: favoritesRepository)
-                case .follow(let vehicleId, _):
-                    Text("Following bus \(vehicleId)")
+                case .follow(let vehicleId, let stopId):
+                    BusFollowView(vehicleId: vehicleId, stopId: stopId, busRepository: busRepository)
                 }
             }
             .navigationDestination(for: TrainNavigation.self) { destination in

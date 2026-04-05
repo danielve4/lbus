@@ -38,7 +38,7 @@ struct BusStopsView: View {
         .navigationTitle("Route \(viewModel.route.shortName) \(viewModel.direction)")
         .toolbar {
             if let onClose {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Close", action: onClose)
                 }
             }

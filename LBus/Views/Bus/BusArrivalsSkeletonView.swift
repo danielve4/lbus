@@ -15,7 +15,7 @@ struct BusArrivalsSkeletonView: View {
                     Spacer()
                 }
                 .padding(.horizontal)
-                .modifier(ShimmerModifier())
+//                .modifier(ShimmerModifier())
 
                 LazyVStack(spacing: 0) {
                     ForEach(0..<4, id: \.self) { _ in
@@ -40,7 +40,7 @@ struct BusArrivalsSkeletonView: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
-                        .modifier(ShimmerModifier())
+//                        .modifier(ShimmerModifier())
 
                         Divider()
                             .padding(.leading, 16)
