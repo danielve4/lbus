@@ -79,45 +79,51 @@ struct BusArrivalsView: View {
     }
 
     private var arrivalsList: some View {
-        List {
-            Section {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(viewModel.stopName)
-                        .font(.headline)
-                    Text(headerSubtitle)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+        ScrollView {
+            VStack(spacing: 32) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(viewModel.direction)
+                            .font(.headline)
+                            .foregroundStyle(.pink)
+                        Text(headerSubtitle)
+                            .font(.subheadline)
+                    }
+                    Spacer()
                 }
-            }
+                .padding(.horizontal)
 
-            if viewModel.arrivals.isEmpty {
-                ContentUnavailableView {
-                    Label("No Arrivals", systemImage: "clock")
-                } description: {
-                    Text("No arrivals predicted for this stop right now.")
-                } actions: {
-                    if viewModel.isLoading {
-                        ProgressView()
-                    } else {
-                        Button("Refresh") {
-                            Task { await viewModel.manualRefresh() }
+                if viewModel.arrivals.isEmpty {
+                    ContentUnavailableView {
+                        Label("No Arrivals", systemImage: "clock")
+                    } description: {
+                        Text("No arrivals predicted for this stop right now.")
+                    } actions: {
+                        if viewModel.isLoading {
+                            ProgressView()
+                        } else {
+                            Button("Refresh") {
+                                Task { await viewModel.manualRefresh() }
+                            }
+                        }
+                    }
+                } else {
+                    LazyVStack(spacing: 0) {
+                        ForEach(viewModel.arrivals) { arrival in
+                            NavigationLink(value: BusNavigation.follow(
+                                vehicleId: arrival.vehicleId,
+                                stopId: arrival.stopId
+                            )) {
+                                arrivalRow(arrival)
+                            }
+                            .modifier(RefreshShimmerModifier(isActive: showRefreshShimmer))
+
+                            Divider()
+                                .padding(.leading, 16)
                         }
                     }
                 }
-            } else {
-                Section {
-                    ForEach(viewModel.arrivals) { arrival in
-                        NavigationLink(value: BusNavigation.follow(
-                            vehicleId: arrival.vehicleId,
-                            stopId: arrival.stopId
-                        )) {
-                            arrivalRow(arrival)
-                        }
-                        .modifier(RefreshShimmerModifier(isActive: showRefreshShimmer))
-                    }
-                }
             }
-
         }
         .refreshable {
             await viewModel.manualRefresh()
@@ -126,9 +132,9 @@ struct BusArrivalsView: View {
 
     private var headerSubtitle: String {
         if let lastUpdated = viewModel.lastUpdated {
-            return "\(viewModel.direction) | Last refreshed at \(Self.refreshTimeFormatter.string(from: lastUpdated))"
+            return "Last refreshed at \(Self.refreshTimeFormatter.string(from: lastUpdated))"
         }
-        return viewModel.direction
+        return ""
     }
 
     private func arrivalRow(_ arrival: BusArrival) -> some View {
@@ -172,7 +178,11 @@ struct BusArrivalsView: View {
                         .background(RoundedRectangle(cornerRadius: 4).fill(.red))
                 }
             }
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
-        .padding(.vertical, 2)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
     }
 }

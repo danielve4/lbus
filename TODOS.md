@@ -248,6 +248,19 @@ Direction | Last refreshed at HH:mm:ss PM/AM
 ```
 - [x] The shimmer loading effect should only be visible on the initial load, not during subsequent auto-refreshes or manual refreshes. However, to indicate a refresh ocurred, the arrival rows should shimmer without hiding the list. It is only to show the refresh happened, not to indicate loading. To indicate loading, the refresh button should show a ProgressView while the refresh is in-flight.
 
+### TODO 4.41.1 -- Bus arrivals layout refresh
+- [x] Complete
+
+Refresh the visual layout of the bus arrivals screen to move away from the default `List` presentation. Use a custom scrolling layout with a more editorial header, full-width arrival rows, clearer row separation, and a matching skeleton state so loading and loaded layouts feel consistent.
+
+> **Note:** Completed by switching the arrivals content and skeleton to `ScrollView`-based layouts, emphasizing the direction in the header, keeping the last refreshed timestamp visible, and adding custom row spacing/dividers plus a trailing disclosure chevron for each arrival row.
+
+**Acceptance Criteria:**
+- [x] Bus arrivals content uses a custom scrolling layout instead of the previous default list presentation
+- [x] Header layout is refreshed while still surfacing direction and last refreshed context
+- [x] Arrival rows use custom spacing and separators for a cleaner visual rhythm
+- [x] The loading skeleton mirrors the refreshed arrivals layout
+
 ### TODO 4.42 -- Bus arrivals refresh behavior
 - [x] Complete
 
