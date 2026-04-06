@@ -21,15 +21,18 @@ struct FavoritesView: View {
                 }
             } else {
                 List(favorites) { favorite in
-                    HStack(spacing: 12) {
-                        Image(systemName: favorite.transitType == .bus ? "bus.fill" : "tram.fill")
-                            .foregroundStyle(.secondary)
-                            .frame(width: 24)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(favorite.name)
-                            Text("\(favorite.routeOrLine) · \(favorite.direction)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                    Group {
+                        if case .bus(let bus) = favorite {
+                            NavigationLink(value: BusNavigation.arrivals(
+                                stopId: bus.stopId,
+                                stopName: bus.stopName,
+                                route: bus.route,
+                                direction: bus.direction
+                            )) {
+                                favoriteRow(favorite)
+                            }
+                        } else {
+                            favoriteRow(favorite)
                         }
                     }
                 }
@@ -38,6 +41,20 @@ struct FavoritesView: View {
         .navigationTitle("Favorites")
         .onAppear {
             favorites = favoritesRepository.getAll()
+        }
+    }
+
+    private func favoriteRow(_ favorite: Favorite) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: favorite.transitType == .bus ? "bus.fill" : "tram.fill")
+                .foregroundStyle(.secondary)
+                .frame(width: 24)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(favorite.name)
+                Text("\(favorite.routeOrLine) · \(favorite.direction)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }
