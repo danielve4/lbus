@@ -329,4 +329,128 @@ private func makeViewModelWithMockRefresh(
         mockRefresh.isRefreshing = true
         #expect(vm.isRefreshing == true)
     }
+
+    // MARK: - Route filtering and direction grouping
+
+    @Test func selectedRouteDefaultsToInitRoute() async {
+        let (vm, _, _) = await makeViewModel()
+        #expect(vm.selectedRoute == "20")
+    }
+
+    @Test func availableRoutesReturnsUniqueRoutesSorted() async {
+        let (vm, _, _) = await makeViewModel(arrivals: [
+            makeArrival(vehicleId: "1", route: "20"),
+            makeArrival(vehicleId: "2", route: "56"),
+            makeArrival(vehicleId: "3", route: "20"),
+            makeArrival(vehicleId: "4", route: "9")
+        ])
+        await vm.loadArrivals()
+        #expect(vm.availableRoutes == ["9", "20", "56"])
+    }
+
+    @Test func hasMultipleRoutesReturnsFalseForSingleRoute() async {
+        let (vm, _, _) = await makeViewModel()
+        await vm.loadArrivals()
+        #expect(vm.hasMultipleRoutes == false)
+    }
+
+    @Test func hasMultipleRoutesReturnsTrueForMultipleRoutes() async {
+        let (vm, _, _) = await makeViewModel(arrivals: [
+            makeArrival(vehicleId: "1", route: "20"),
+            makeArrival(vehicleId: "2", route: "56")
+        ])
+        await vm.loadArrivals()
+        #expect(vm.hasMultipleRoutes == true)
+    }
+
+    @Test func filteredArrivalsFiltersToSelectedRoute() async {
+        let (vm, _, _) = await makeViewModel(arrivals: [
+            makeArrival(vehicleId: "1", route: "20"),
+            makeArrival(vehicleId: "2", route: "56"),
+            makeArrival(vehicleId: "3", route: "20")
+        ])
+        await vm.loadArrivals()
+        vm.selectRoute("20")
+        #expect(vm.filteredArrivals.count == 2)
+        #expect(vm.filteredArrivals.allSatisfy { $0.route == "20" })
+    }
+
+    @Test func filteredArrivalsReturnsAllWhenSelectedRouteIsNil() async {
+        let (vm, _, _) = await makeViewModel(arrivals: [
+            makeArrival(vehicleId: "1", route: "20"),
+            makeArrival(vehicleId: "2", route: "56")
+        ])
+        await vm.loadArrivals()
+        vm.selectRoute(nil)
+        #expect(vm.filteredArrivals.count == 2)
+    }
+
+    @Test func selectRouteUpdatesSelectedRoute() async {
+        let (vm, _, _) = await makeViewModel()
+        vm.selectRoute("56")
+        #expect(vm.selectedRoute == "56")
+        vm.selectRoute(nil)
+        #expect(vm.selectedRoute == nil)
+    }
+
+    @Test func groupedArrivalsGroupsByDirection() async {
+        let (vm, _, _) = await makeViewModel(arrivals: [
+            makeArrival(vehicleId: "1", route: "20", routeDirection: "Westbound"),
+            makeArrival(vehicleId: "2", route: "20", routeDirection: "Eastbound"),
+            makeArrival(vehicleId: "3", route: "20", routeDirection: "Westbound")
+        ])
+        await vm.loadArrivals()
+        vm.selectRoute("20")
+        let groups = vm.groupedArrivals
+        #expect(groups.count == 2)
+        #expect(groups[0].direction == "Eastbound")
+        #expect(groups[0].arrivals.count == 1)
+        #expect(groups[1].direction == "Westbound")
+        #expect(groups[1].arrivals.count == 2)
+    }
+
+    @Test func groupedArrivalsSingleDirectionReturnsSingleGroup() async {
+        let (vm, _, _) = await makeViewModel()
+        await vm.loadArrivals()
+        let groups = vm.groupedArrivals
+        #expect(groups.count == 1)
+        #expect(groups[0].direction == "Westbound")
+    }
+
+    @Test func groupedArrivalsRespectsRouteFilter() async {
+        let (vm, _, _) = await makeViewModel(arrivals: [
+            makeArrival(vehicleId: "1", route: "20", routeDirection: "Westbound"),
+            makeArrival(vehicleId: "2", route: "56", routeDirection: "Eastbound"),
+            makeArrival(vehicleId: "3", route: "56", routeDirection: "Westbound")
+        ])
+        await vm.loadArrivals()
+        vm.selectRoute("56")
+        let groups = vm.groupedArrivals
+        #expect(groups.count == 2)
+        #expect(groups.flatMap(\.arrivals).allSatisfy { $0.route == "56" })
+    }
+
+    @Test func effectiveSelectedRouteFallsBackToNilWhenRouteAbsent() async {
+        let (vm, _, _) = await makeViewModel(arrivals: [
+            makeArrival(vehicleId: "1", route: "56"),
+            makeArrival(vehicleId: "2", route: "9")
+        ])
+        await vm.loadArrivals()
+        // selectedRoute is "20" from init, but "20" is not in arrivals
+        #expect(vm.selectedRoute == "20")
+        #expect(vm.effectiveSelectedRoute == nil)
+        // filteredArrivals should show all since effective is nil
+        #expect(vm.filteredArrivals.count == 2)
+    }
+
+    @Test func effectiveSelectedRouteReturnsSelectedWhenPresent() async {
+        let (vm, _, _) = await makeViewModel(arrivals: [
+            makeArrival(vehicleId: "1", route: "20"),
+            makeArrival(vehicleId: "2", route: "56")
+        ])
+        await vm.loadArrivals()
+        #expect(vm.effectiveSelectedRoute == "20")
+        #expect(vm.filteredArrivals.count == 1)
+        #expect(vm.filteredArrivals[0].route == "20")
+    }
 }

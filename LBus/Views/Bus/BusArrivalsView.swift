@@ -56,7 +56,13 @@ struct BusArrivalsView: View {
                     }
                 }
             case .loaded:
-                arrivalsList
+                VStack(spacing: 0) {
+                    if viewModel.hasMultipleRoutes {
+                        routePillBar
+                            .padding(.vertical, 12)
+                    }
+                    arrivalsList
+                }
             }
         }
         .navigationTitle(viewModel.stopName)
@@ -97,22 +103,45 @@ struct BusArrivalsView: View {
         }
     }
 
-    private var arrivalsList: some View {
-        ScrollView {
-            VStack(spacing: 32) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(viewModel.direction)
-                            .font(.headline)
-                            .foregroundStyle(.pink)
-                        Text(headerSubtitle)
-                            .font(.subheadline)
-                    }
-                    Spacer()
+    private var routePillBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                routePill(label: "All", isSelected: viewModel.effectiveSelectedRoute == nil) {
+                    viewModel.selectRoute(nil)
                 }
-                .padding(.horizontal)
+                ForEach(viewModel.availableRoutes, id: \.self) { route in
+                    routePill(label: route, isSelected: viewModel.effectiveSelectedRoute == route) {
+                        viewModel.selectRoute(route)
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 4)
+        }
+    }
 
-                if viewModel.arrivals.isEmpty {
+    private func routePill(label: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(label)
+                .font(.subheadline.bold())
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .foregroundStyle(isSelected ? .white: .primary)
+                .background(
+                    Capsule().fill(isSelected ? .gray : .clear)
+                )
+                .overlay(
+                    Capsule().stroke(.gray, lineWidth: isSelected ? 0 : 2)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var arrivalsList: some View {
+        List {
+            let groups = viewModel.groupedArrivals
+            if groups.isEmpty {
+                Section {
                     ContentUnavailableView {
                         Label("No Arrivals", systemImage: "clock")
                     } description: {
@@ -126,9 +155,12 @@ struct BusArrivalsView: View {
                             }
                         }
                     }
-                } else {
-                    LazyVStack(spacing: 0) {
-                        ForEach(viewModel.arrivals) { arrival in
+                    .listRowSeparator(.hidden)
+                }
+            } else {
+                ForEach(groups, id: \.direction) { group in
+                    Section {
+                        ForEach(group.arrivals) { arrival in
                             Button {
                                 followTarget = FollowTarget(
                                     vehicleId: arrival.vehicleId,
@@ -139,12 +171,22 @@ struct BusArrivalsView: View {
                             }
                             .buttonStyle(.plain)
                             .modifier(RefreshShimmerModifier(isActive: showRefreshShimmer))
-
-                            Divider()
-                                .padding(.leading, 16)
+                        }
+                    } header: {
+                        if groups.count > 1 || viewModel.effectiveSelectedRoute != nil {
+                            Text(group.direction)
+                                .font(.headline)
+                                .foregroundStyle(.pink)
+                                .textCase(nil)
                         }
                     }
                 }
+            }
+
+            if !headerSubtitle.isEmpty {
+                Text(headerSubtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
         }
         .refreshable {
@@ -204,7 +246,6 @@ struct BusArrivalsView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, 16)
         .padding(.vertical, 10)
     }
 }

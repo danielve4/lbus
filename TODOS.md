@@ -271,6 +271,20 @@ Instead of showing a refresh button, implement pull-to-refresh on the bus arriva
 - [x] Implement pull-to-refresh on the arrivals list
 - [x] While a manual refresh is in-flight, the native pull-to-refresh spinner is shown; skeleton is limited to initial load only
 
+### TODO 4.43 -- Bus arrivals direction display
+- [x] Complete
+
+Some bus stops serve multiple directions. When a stop is selected from the bus stops screen, the arrivals screen is filtered to that route+direction. However, if multiple routes are present in the arrivals data for that stop, the user should be able see other routes at that stop. To do this, present a horizontal scroll of route numbers above the arrivals list when multiple routes are present. The selected route is visually highlighted, and the arrivals list is filtered to that route. Present an "All" routes pill that shows arrivals for all routes at that stop when selected. Every arrival should be grouped by direction if multiple directions are present for the selected route or all routes. Every arrival will have a `rtdir` property that can be used to determine its direction and group it accordingly.
+
+> **Note:** Route filtering is purely client-side — the API already returns all arrivals for a stop. `effectiveSelectedRoute` normalizes the selection: if the navigation route is absent from live data, it falls back to "All" so the user never sees an empty filtered list.
+
+**Acceptance Criteria:**
+- [x] When multiple routes are present in the arrivals data for a stop, show a horizontal scroll of route numbers above the arrivals list
+- [x] The selected route is visually highlighted in the horizontal scroll
+- [x] Selecting a route filters the arrivals list to that route
+- [x] An "All" routes pill is available to show arrivals for all routes at that stop when selected
+- [x] Arrivals are grouped by direction if multiple directions are present for the selected route or all routes
+
 ### TODO 4.5 -- Bus follow screen
 - [x] Complete
 

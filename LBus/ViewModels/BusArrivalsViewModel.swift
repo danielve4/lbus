@@ -15,6 +15,7 @@ final class BusArrivalsViewModel {
     private(set) var error: String? = nil
     private(set) var isFavorite: Bool = false
     private(set) var refreshCount: Int = 0
+    private(set) var selectedRoute: String?
 
     let stopId: String
     let stopName: String
@@ -41,6 +42,7 @@ final class BusArrivalsViewModel {
         self.stopName = stopName
         self.route = route
         self.direction = direction
+        self.selectedRoute = route
         self.busRepository = busRepository
         self.favoritesRepository = favoritesRepository
 
@@ -63,6 +65,37 @@ final class BusArrivalsViewModel {
 
     var lastUpdated: Date? { refreshManager.lastUpdated }
     var isRefreshing: Bool { refreshManager.isRefreshing }
+
+    var availableRoutes: [String] {
+        Array(Set(arrivals.map(\.route))).sorted {
+            if let a = Int($0), let b = Int($1) { return a < b }
+            return $0 < $1
+        }
+    }
+
+    var hasMultipleRoutes: Bool {
+        availableRoutes.count > 1
+    }
+
+    var effectiveSelectedRoute: String? {
+        guard let selectedRoute, availableRoutes.contains(selectedRoute) else { return nil }
+        return selectedRoute
+    }
+
+    var filteredArrivals: [BusArrival] {
+        guard let effective = effectiveSelectedRoute else { return arrivals }
+        return arrivals.filter { $0.route == effective }
+    }
+
+    var groupedArrivals: [(direction: String, arrivals: [BusArrival])] {
+        Dictionary(grouping: filteredArrivals, by: \.routeDirection)
+            .sorted { $0.key < $1.key }
+            .map { (direction: $0.key, arrivals: $0.value) }
+    }
+
+    func selectRoute(_ route: String?) {
+        selectedRoute = route
+    }
 
     // MARK: - Lifecycle
 
