@@ -302,21 +302,37 @@ Show upcoming stops for a tracked bus vehicle in a modal. Highlight the originat
 - [x] Loading, error, and empty states handled
 - [x] While loading, a shimmer effect is shown in place of the lists
 
+### TODO 4.51 -- Remove Bus arrivals and follow shimmer
+- [x] Complete
+
+The shimmer effect is currently distracting and does not look great. Remove the shimmer effect from the bus arrivals and bus follow screens. For now, in the bus arrivals screen, show an "Updating..." text in place of the last updated timestamp. In the bus follow screen, there is already a ProgressView, so only the shimmer should be removed.
+
+> **Note:** `RefreshShimmerModifier` removed entirely (had no other callers). `ShimmerModifier` usage stripped from `BusArrivalsSkeletonView` and `BusFollowSkeletonView`; those skeletons now rely solely on `.redacted(reason: .placeholder)`. `BusArrivalsView.headerSubtitle` flips to `"Updating..."` while `viewModel.isRefreshing` is true. `BusFollowView` keeps its existing bottom-toolbar `ProgressView`.
+
+**Acceptance Criteria:**
+- [x] Remove shimmer effect from bus arrivals screen; replace with "Updating..." text during refresh
+- [x] Remove shimmer effect from bus follow screen; keep existing ProgressView for loading indication
+- [x] Ensure no shimmer remains in any bus arrivals or follow screen states
+- [x] Remove from skeleton views as well so loading states are consistent with refresh states
+
 ---
 
 ## Group 5: Train Feature Screens
 
 ### TODO 5.1 -- Train stations screen (with search)
-- [ ] Complete
+- [x] Complete
 
 Show stations for a selected train line from `/traindata`. List is searchable. Tapping a station navigates to train arrivals with line context.
 
+> **Note:** Stations are derived from cached `TrainData.stopSequences` filtered by line. Canonical ordering uses the alphabetically-first sequence (e.g., `Red-N`) with later sequences contributing any missing station IDs, isolated in `TrainStationsViewModel.orderedStationIds(for:data:)`. The station → serving-lines map is built in a single pass over all sequences via `buildLineIdsByStation(from:)`; current line is always sorted first in each row's circle group. Skeleton is redacted-only (no shimmer), consistent with TODO 4.51 direction. `TrainNavigation.arrivals` label was renamed `stopId:` → `stationId:` to prevent TODO 5.2 from inheriting misleading naming.
+
 **Acceptance Criteria:**
-- [ ] Displays selected train line in header
-- [ ] Lists stations with name
-- [ ] Search field filters the station list
-- [ ] Tapping a station pushes train arrivals screen with line context
-- [ ] Empty state handled
+- [x] Displays selected train line in header
+- [x] Lists stations with name
+- [x] Search field filters the station list
+- [x] Tapping a station pushes train arrivals screen with line context
+- [x] Empty state handled
+- [x] Show a circle next to the station name (at the right side of the cell) that is filled with the line color for that station. If a station serves multiple lines, show multiple circles, one for each line, arranged horizontally.
 
 ### TODO 5.2 -- Train arrivals screen
 - [ ] Complete
@@ -332,7 +348,6 @@ Show real-time arrivals for a station, grouped by line and direction. Header wit
 - [ ] Auto-refresh every 30s, manual refresh, last-updated timestamp
 - [ ] Tapping an arrival pushes train follow screen
 - [ ] Empty state when no arrivals
-- [ ] While loading, a shimmer effect is shown in place of the lists
 
 ### TODO 5.3 -- Train follow screen
 - [ ] Complete
@@ -345,7 +360,6 @@ Show upcoming stations for a tracked train run. Highlight the originating statio
 - [ ] Originating station visually highlighted
 - [ ] Auto-refresh every 30s, manual refresh
 - [ ] Loading, error, and empty states handled
-- [ ] While loading, a shimmer effect is shown in place of the lists
 
 ---
 

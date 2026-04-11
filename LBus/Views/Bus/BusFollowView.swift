@@ -3,7 +3,6 @@ import SwiftUI
 struct BusFollowView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: BusFollowViewModel
-    @State private var showRefreshShimmer = false
 
     private static let refreshTimeFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -71,13 +70,6 @@ struct BusFollowView: View {
         .onDisappear {
             viewModel.stopAutoRefresh()
         }
-        .onChange(of: viewModel.refreshCount) { _, _ in
-            showRefreshShimmer = true
-            Task {
-                try? await Task.sleep(for: .seconds(1.0))
-                showRefreshShimmer = false
-            }
-        }
     }
 
     private var navigationTitle: String {
@@ -112,7 +104,6 @@ struct BusFollowView: View {
                     LazyVStack(spacing: 0) {
                         ForEach(viewModel.stops) { stop in
                             stopRow(stop)
-                                .modifier(RefreshShimmerModifier(isActive: showRefreshShimmer))
 
                             Divider()
                                 .padding(.leading, 20)

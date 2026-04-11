@@ -2,7 +2,6 @@ import SwiftUI
 
 struct BusArrivalsView: View {
     @State private var viewModel: BusArrivalsViewModel
-    @State private var showRefreshShimmer = false
     @State private var followTarget: FollowTarget?
 
     private let busRepository: BusRepositoryProtocol
@@ -85,13 +84,6 @@ struct BusArrivalsView: View {
         .onDisappear {
             viewModel.stopAutoRefresh()
         }
-        .onChange(of: viewModel.refreshCount) { _, _ in
-            showRefreshShimmer = true
-            Task {
-                try? await Task.sleep(for: .seconds(1.0))
-                showRefreshShimmer = false
-            }
-        }
         .sheet(item: $followTarget) { target in
             NavigationStack {
                 BusFollowView(
@@ -170,7 +162,6 @@ struct BusArrivalsView: View {
                                 arrivalRow(arrival)
                             }
                             .buttonStyle(.plain)
-                            .modifier(RefreshShimmerModifier(isActive: showRefreshShimmer))
                         }
                     } header: {
                         if groups.count > 1 || viewModel.effectiveSelectedRoute != nil {
@@ -195,10 +186,11 @@ struct BusArrivalsView: View {
     }
 
     private var headerSubtitle: String {
-        if let lastUpdated = viewModel.lastUpdated {
-            return "Last refreshed at \(Self.refreshTimeFormatter.string(from: lastUpdated))"
+        guard let lastUpdated = viewModel.lastUpdated else { return "" }
+        if viewModel.isRefreshing {
+            return "Updating..."
         }
-        return ""
+        return "Last refreshed at \(Self.refreshTimeFormatter.string(from: lastUpdated))"
     }
 
     private func arrivalRow(_ arrival: BusArrival) -> some View {

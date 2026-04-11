@@ -22,22 +22,22 @@ import Testing
 
     @Test func arrivalsEqualWithSameData() {
         let line = TrainLine(from: lineDTO)
-        let a = TrainNavigation.arrivals(stopId: "40360", stationName: "Southport", line: line)
-        let b = TrainNavigation.arrivals(stopId: "40360", stationName: "Southport", line: line)
+        let a = TrainNavigation.arrivals(stationId: "40360", stationName: "Southport", line: line)
+        let b = TrainNavigation.arrivals(stationId: "40360", stationName: "Southport", line: line)
         #expect(a == b)
     }
 
     @Test func arrivalsWithAndWithoutLineAreDistinct() {
         let line = TrainLine(from: lineDTO)
-        let a = TrainNavigation.arrivals(stopId: "40360", stationName: "Southport", line: line)
-        let b = TrainNavigation.arrivals(stopId: "40360", stationName: "Southport", line: nil)
+        let a = TrainNavigation.arrivals(stationId: "40360", stationName: "Southport", line: line)
+        let b = TrainNavigation.arrivals(stationId: "40360", stationName: "Southport", line: nil)
         #expect(a != b)
     }
 
     @Test func arrivalsNotEqualWithDifferentStop() {
         let line = TrainLine(from: lineDTO)
-        let a = TrainNavigation.arrivals(stopId: "40360", stationName: "Southport", line: line)
-        let b = TrainNavigation.arrivals(stopId: "40380", stationName: "Clark/Lake", line: line)
+        let a = TrainNavigation.arrivals(stationId: "40360", stationName: "Southport", line: line)
+        let b = TrainNavigation.arrivals(stationId: "40380", stationName: "Clark/Lake", line: line)
         #expect(a != b)
     }
 
@@ -56,7 +56,7 @@ import Testing
     @Test func differentCasesAreNotEqual() {
         let line = TrainLine(from: lineDTO)
         let stations = TrainNavigation.stations(line: line)
-        let arrivals = TrainNavigation.arrivals(stopId: "40360", stationName: "Southport", line: line)
+        let arrivals = TrainNavigation.arrivals(stationId: "40360", stationName: "Southport", line: line)
         let follow = TrainNavigation.follow(runNumber: "421", stopId: "40360")
         #expect(stations != arrivals)
         #expect(arrivals != follow)

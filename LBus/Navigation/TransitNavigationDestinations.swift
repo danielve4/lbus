@@ -21,9 +21,9 @@ struct TransitNavigationDestinations: ViewModifier {
             .navigationDestination(for: TrainNavigation.self) { destination in
                 switch destination {
                 case .stations(let line):
-                    Text("Stations for \(line.name)")
-                case .arrivals(let stopId, let stationName, _):
-                    Text("Arrivals for \(stationName) (\(stopId))")
+                    TrainStationsView(line: line, trainRepository: trainRepository)
+                case .arrivals(let stationId, let stationName, _):
+                    Text("Arrivals for \(stationName) (\(stationId))")
                 case .follow(let runNumber, _):
                     Text("Following train \(runNumber)")
                 }

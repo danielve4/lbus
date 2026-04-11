@@ -16,7 +16,6 @@ struct BusFollowSkeletonView: View {
                     Spacer()
                 }
                 .padding()
-                .modifier(ShimmerModifier())
 
                 LazyVStack(spacing: 0) {
                     ForEach(0..<5, id: \.self) { index in
@@ -46,7 +45,6 @@ struct BusFollowSkeletonView: View {
                             .padding(.vertical, 10)
                         }
                         .background(index == 0 ? Color.pink.opacity(0.08) : Color.clear)
-                        .modifier(ShimmerModifier())
 
                         Divider()
                             .padding(.leading, 20)

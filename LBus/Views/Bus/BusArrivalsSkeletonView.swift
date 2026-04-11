@@ -49,7 +49,7 @@ struct BusArrivalsSkeletonView: View {
                     .font(.headline)
                     .foregroundStyle(.pink)
                     .textCase(nil)
-            }.modifier(ShimmerModifier())
+            }
         }
         .redacted(reason: .placeholder)
     }
