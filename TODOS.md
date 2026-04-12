@@ -386,18 +386,34 @@ Some train arrivals are schedule and have the "isSch" property set to "1". In th
 - [x] Unit tests cover the scheduled arrival case to ensure the "Scheduled" badge is shown and the countdown is calculated correctly based on the scheduled time
 
 ### TODO 5.3 -- Train follow screen
-- [ ] Complete
+- [x] Complete
 
 Show upcoming stations for a tracked train run. Highlight the originating station. Auto-refresh and manual refresh.
 
-**Acceptance Criteria:**
-- [ ] Header: run number and follow context
-- [ ] Upcoming stations: station name, platform/description, line, destination, direction, countdown, clock time, day context, approaching/delayed/alert badges
-- [ ] Originating station visually highlighted
-- [ ] Auto-refresh every 30s, manual refresh
-- [ ] Loading, error, and empty states handled
+> **Note:** `StatusBadgeView` extracted to `Views/Shared/StatusBadgeView.swift` and adopted by both `TrainArrivalsView` and `TrainFollowView`. `TrainNavigation.follow` label renamed `stopId:` → `stationId:`. `MockTrainRepository.getFollow` implemented (was `fatalError`). Sheet in `TrainArrivalsView` replaced with `TrainFollowView`. `TransitNavigationDestinations` `.follow` case wired to `TrainFollowView`.
 
-### TODO 5.31 -- Adopt shared status badge styles in bus views
+**Acceptance Criteria:**
+- [x] Header: run number and follow context
+- [x] Upcoming stations: station name, platform/description, line, destination, direction, countdown, clock time, day context, approaching/delayed/alert badges
+- [x] Originating station visually highlighted
+- [x] Auto-refresh every 30s, manual refresh
+- [x] Loading, error, and empty states handled
+
+### TODO 5.31 -- Train arrivals & follow screen defects
+- [x] Complete
+
+When all four labels for Approaching, Delayed, Scheduled, and Service Alert are present, the badge text becomes multi line. They should be single line. The train follow screen shows a network error "Unable to Load" when the CTA API is not able to determine the train's current position. In this case, we should show the follow screen with an empty state that says "Unable to load train location" instead of showing a network error. The tap area for a train arrival seems to be only the text and not the entire row. The entire row should be tappable to show the train follow screen.
+
+> **Note:** `StatusBadgeView` gains `.lineLimit(1).fixedSize(horizontal: true, vertical: false)` so badges never wrap. `TrainFollowViewModel.fetchStations()` catches `APIError.apiError` messages containing "unable to determine" and treats them as a successful empty refresh (sets `isLocationUnavailable = true`, returns without throwing). `emptyStateMessage` on the VM drives the `ContentUnavailableView` description. `arrivalRow` in `TrainArrivalsView` gains `.frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())` for full-width tap.
+
+**Acceptance Criteria:**
+- [x] When all four badges (Approaching, Delayed, Scheduled, Service Alert) are present, they should be displayed in a single line with appropriate spacing, rather than wrapping to multiple lines
+- [x] If the CTA API is unable to determine the train's current position and returns an error for the follow data, the train follow screen should still be presented but show an empty state with a message saying Unable to load train location instead of a network error
+- [x] The tap area for a train arrival should be the entire row, not just the text
+- [x] Unit tests cover these edge cases to ensure badges display correctly, the follow screen handles location errors gracefully, and the entire row is tappable
+
+
+### TODO 5.32 -- Adopt shared status badge styles in bus views
 - [ ] Complete
 
 Train arrivals now use `StatusBadge.Style` plus the shared `StatusBadgeStyle+Color` mapping for badge background/text colors. Bus arrivals and bus follow still render delayed badges inline with duplicated styling. Move those bus badges onto the shared status badge styling path so delayed status colors stay consistent across bus and train screens.

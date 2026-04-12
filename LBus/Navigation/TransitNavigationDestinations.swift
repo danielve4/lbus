@@ -30,8 +30,12 @@ struct TransitNavigationDestinations: ViewModifier {
                         trainRepository: trainRepository,
                         favoritesRepository: favoritesRepository
                     )
-                case .follow(let runNumber, _):
-                    Text("Following train \(runNumber)")
+                case .follow(let runNumber, let stationId):
+                    TrainFollowView(
+                        runNumber: runNumber,
+                        stationId: stationId,
+                        trainRepository: trainRepository
+                    )
                 }
             }
     }

@@ -84,7 +84,11 @@ struct TrainArrivalsView: View {
         }
         .sheet(item: $followTarget) { target in
             NavigationStack {
-                Text("Following train \(target.runNumber)")
+                TrainFollowView(
+                    runNumber: target.runNumber,
+                    stationId: target.stationId,
+                    trainRepository: trainRepository
+                )
             }.presentationDetents([.medium, .large])
         }
     }
@@ -263,7 +267,7 @@ struct TrainArrivalsView: View {
                     .foregroundStyle(.secondary)
                 HStack(spacing: 4) {
                     ForEach(arrival.statusBadges, id: \.label) { b in
-                        badge(b.label, style: b.style)
+                        StatusBadgeView(label: b.label, style: b.style)
                     }
                 }
             }
@@ -272,6 +276,8 @@ struct TrainArrivalsView: View {
                 .foregroundStyle(.secondary)
         }
         .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 
     // MARK: - Shared Components
@@ -290,14 +296,6 @@ struct TrainArrivalsView: View {
             .background(RoundedRectangle(cornerRadius: 4).fill(fillColor))
     }
 
-    private func badge(_ text: String, style: StatusBadge.Style) -> some View {
-        Text(text)
-            .font(.caption2.bold())
-            .foregroundStyle(style.textColor)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(RoundedRectangle(cornerRadius: 4).fill(style.backgroundColor))
-    }
 }
 
 // MARK: - Flow Layout for Serving Line Chips
