@@ -6,6 +6,7 @@ struct FavoritesView: View {
 
     @State private var favorites: [Favorite] = []
     @State private var showClearAllConfirmation = false
+    @State private var editMode: EditMode = .inactive
 
     var body: some View {
         Group {
@@ -46,11 +47,22 @@ struct FavoritesView: View {
                         }
                     }
                     .onDelete(perform: deleteFavorites)
+                    .onMove(perform: moveFavorites)
                 }
+                .environment(\.editMode, $editMode)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Clear All", role: .destructive) {
-                            showClearAllConfirmation = true
+                        Button(editMode == .active ? "Done" : "Edit") {
+                            withAnimation {
+                                editMode = editMode == .active ? .inactive : .active
+                            }
+                        }
+                    }
+                    if editMode == .active {
+                        ToolbarItem(placement: .bottomBar) {
+                            Button("Clear All", role: .destructive) {
+                                showClearAllConfirmation = true
+                            }
                         }
                     }
                 }
@@ -110,11 +122,20 @@ struct FavoritesView: View {
             try? favoritesRepository.remove(favorite)
         }
         reloadFavorites()
+        if favorites.isEmpty {
+            editMode = .inactive
+        }
+    }
+
+    private func moveFavorites(from source: IndexSet, to destination: Int) {
+        try? favoritesRepository.move(fromOffsets: source, toOffset: destination)
+        reloadFavorites()
     }
 
     private func clearAllFavorites() {
         try? favoritesRepository.removeAll()
         reloadFavorites()
+        editMode = .inactive
     }
 
     private func reloadFavorites() {

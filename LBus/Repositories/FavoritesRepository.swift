@@ -7,6 +7,7 @@ protocol FavoritesRepositoryProtocol {
     func add(_ favorite: Favorite) throws
     func remove(_ favorite: Favorite) throws
     func removeAll() throws
+    func move(fromOffsets source: IndexSet, toOffset destination: Int) throws
     func contains(_ favorite: Favorite) -> Bool
     func pushToRemote() async throws
     func pullFromRemote() async throws
@@ -66,6 +67,28 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
 
     func removeAll() throws {
         try modelContext.delete(model: FavoritePersisted.self)
+        try modelContext.save()
+    }
+
+    func move(fromOffsets source: IndexSet, toOffset destination: Int) throws {
+        var favorites = getAll()
+        try favorites.moveElements(fromOffsets: source, toOffset: destination)
+
+        let descriptor = FetchDescriptor<FavoritePersisted>(
+            sortBy: [SortDescriptor(\.sortOrder)]
+        )
+        let persisted = try modelContext.fetch(descriptor)
+        var persistedById: [String: FavoritePersisted] = [:]
+        for item in persisted {
+            persistedById[item.favoriteId] = item
+        }
+
+        for (index, favorite) in favorites.enumerated() {
+            if let record = persistedById[favorite.id] {
+                record.sortOrder = index
+            }
+        }
+
         try modelContext.save()
     }
 

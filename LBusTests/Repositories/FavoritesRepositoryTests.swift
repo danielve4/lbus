@@ -23,6 +23,13 @@ private let trainFavorite = Favorite.train(TrainFavorite(
     direction: "Service toward 95th/Dan Ryan"
 ))
 
+private let busFavorite2 = Favorite.bus(BusFavorite(
+    route: "66",
+    stopId: "789",
+    stopName: "Clark & Lake",
+    direction: "Westbound"
+))
+
 // MARK: - Tests
 
 @Suite(.serialized) @MainActor struct FavoritesRepositoryTests {
@@ -125,6 +132,97 @@ private let trainFavorite = Favorite.train(TrainFavorite(
 
         #expect(all[0] == busFavorite)
         #expect(all[1] == trainFavorite)
+    }
+
+    // MARK: - Move
+
+    @Test func moveReordersFromFirstToLast() throws {
+        let (repo, _, container) = try makeRepo()
+        _ = container
+
+        try repo.add(busFavorite)
+        try repo.add(trainFavorite)
+        try repo.add(busFavorite2)
+
+        // Move first item to end: [bus, train, bus2] -> [train, bus2, bus]
+        try repo.move(fromOffsets: IndexSet(integer: 0), toOffset: 3)
+
+        let all = repo.getAll()
+        #expect(all.count == 3)
+        #expect(all[0] == trainFavorite)
+        #expect(all[1] == busFavorite2)
+        #expect(all[2] == busFavorite)
+    }
+
+    @Test func moveReordersFromLastToFirst() throws {
+        let (repo, _, container) = try makeRepo()
+        _ = container
+
+        try repo.add(busFavorite)
+        try repo.add(trainFavorite)
+        try repo.add(busFavorite2)
+
+        // Move last item to beginning: [bus, train, bus2] -> [bus2, bus, train]
+        try repo.move(fromOffsets: IndexSet(integer: 2), toOffset: 0)
+
+        let all = repo.getAll()
+        #expect(all.count == 3)
+        #expect(all[0] == busFavorite2)
+        #expect(all[1] == busFavorite)
+        #expect(all[2] == trainFavorite)
+    }
+
+    @Test func movePreservesOrderAfterMultipleMoves() throws {
+        let (repo, _, container) = try makeRepo()
+        _ = container
+
+        try repo.add(busFavorite)
+        try repo.add(trainFavorite)
+        try repo.add(busFavorite2)
+
+        // Move index 0 to end: [bus, train, bus2] -> [train, bus2, bus]
+        try repo.move(fromOffsets: IndexSet(integer: 0), toOffset: 3)
+        // Move index 0 past index 1: [train, bus2, bus] -> [bus2, train, bus]
+        try repo.move(fromOffsets: IndexSet(integer: 0), toOffset: 2)
+
+        let all = repo.getAll()
+        #expect(all.count == 3)
+        #expect(all[0] == busFavorite2)
+        #expect(all[1] == trainFavorite)
+        #expect(all[2] == busFavorite)
+    }
+
+    @Test func moveSamePositionIsNoOp() throws {
+        let (repo, _, container) = try makeRepo()
+        _ = container
+
+        try repo.add(busFavorite)
+        try repo.add(trainFavorite)
+
+        // Move item 0 to position 0 (no change)
+        try repo.move(fromOffsets: IndexSet(integer: 0), toOffset: 0)
+
+        let all = repo.getAll()
+        #expect(all[0] == busFavorite)
+        #expect(all[1] == trainFavorite)
+    }
+
+    @Test func moveAdjacentOffsetIsNoOp() throws {
+        let (repo, _, container) = try makeRepo()
+        _ = container
+
+        try repo.add(busFavorite)
+        try repo.add(trainFavorite)
+        try repo.add(busFavorite2)
+
+        // Move item 0 to offset 1 — after adjustment this is a no-op
+        // (item is removed from index 0, insertion point becomes 1 - 1 = 0)
+        try repo.move(fromOffsets: IndexSet(integer: 0), toOffset: 1)
+
+        let all = repo.getAll()
+        #expect(all[0] == busFavorite)
+        #expect(all[1] == trainFavorite)
+        #expect(all[2] == busFavorite2)
     }
 
     // MARK: - Sync

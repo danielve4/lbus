@@ -448,6 +448,20 @@ Show all saved favorites with remove/clear-all, empty state, and navigation to t
 - [x] Empty state when no favorites saved
 - [x] List updates reactively when favorites change
 
+### TODO 6.2 -- Favorites edit
+- [x] Complete
+
+Present an edit button in the favorites screen that allows users to delete individual favorites or clear all favorites. When the user taps the edit button, the list enters edit mode where they can tap a delete control next to each favorite to remove it, or tap a "Clear All" button to remove all favorites at once. The "Clear All" action should have confirmation prompts to prevent accidental deletion. Edit mode should also allow the user to reorder their favorites via drag-and-drop, and the order should be persisted.
+
+> **Note:** Added `Array.moveElements(fromOffsets:toOffset:)` in `ArrayMove.swift` (Foundation-only, no SwiftUI) shared by both `FavoritesRepository` and `MockFavoritesRepository`. `FavoritesRepository.move` reindexes `FavoritePersisted.sortOrder` after reordering. `FavoritesView` now has an "Edit"/"Done" toggle button (top-right) instead of the old "Clear All" toolbar button; "Clear All" with confirmation moves to the bottom toolbar in edit mode. `.onMove` drives drag-and-drop reorder. Deleting the last favorite or confirming "Clear All" resets `editMode` to `.inactive` so the empty state shows cleanly.
+
+**Acceptance Criteria:**
+- [x] Edit button in the favorites screen toggles edit mode instead of the current "Clear All" button
+- [x] In edit mode, each favorite row shows a delete control that allows the user to remove that favorite
+- [x] In edit mode, a "Clear All" button is available to remove all favorites at once, with a confirmation prompt to prevent accidental deletion
+- [x] Edit mode allows the user to reorder their favorites via drag-and-drop
+- [x] The order of favorites is persisted so that it remains consistent across app launches and when navigating away and back to the favorites screen
+
 ---
 
 ## Group 7: Home
@@ -475,4 +489,4 @@ The Home tab was removed in the navigation refactor (TODO 1.5). Favorites is now
 | 3 | 2.1, 2.2, 2.3, 3.1, 3.2 | Repositories and shared infrastructure |
 | 4 | 4.1, 4.2, 4.3, 4.4, 4.5 | Full bus flow -- validates the full stack |
 | 5 | 5.1, 5.2, 5.3 | Full train flow -- builds on bus patterns |
-| 6 | 6.1 | Favorites (Home removed in 1.5) |
+| 6 | 6.1, 6.2 | Favorites (Home removed in 1.5) |

@@ -22,6 +22,10 @@ final class MockFavoritesRepository: FavoritesRepositoryProtocol {
         favorites.removeAll()
     }
 
+    func move(fromOffsets source: IndexSet, toOffset destination: Int) throws {
+        try favorites.moveElements(fromOffsets: source, toOffset: destination)
+    }
+
     func contains(_ favorite: Favorite) -> Bool {
         favorites.contains { $0.id == favorite.id }
     }
