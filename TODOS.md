@@ -363,13 +363,15 @@ Show real-time arrivals for a station, grouped by line and direction. Header wit
 - [x] Empty state when no arrivals
 
 ### TODO 5.21 -- Train arrivals destination grouping edge case
-- [ ] Complete
+- [x] Complete
 
 Some train lines have multiple destinations even though they travel the same direction. For example, the Blue Line has three destinations: O'Hare, Forest Park, and UIC-Halsted. The API returns a trDr property that indicates the direction of travel with a number ("1" or "5"). However, both Forest Park and UIC-Halsted trains have the same trDr value, even though they are different destinations. In this case, we should group arrivals by both direction and destination name to ensure that Forest Park and UIC-Halsted trains are shown in the same group.
 
+> **Note:** Grouping key changed from `(line, direction, destinationName)` to `(line, direction)`. Destination names are now presentation metadata: `ArrivalGroup.destinations` computes sorted unique destination names from the group's arrivals, and `destinationTitle(for:)` joins them with " / " for display (e.g., "Forest Park / UIC-Halsted"). Group sort uses line display name first, then concatenated destination title.
+
 **Acceptance Criteria:**
-- [ ] When multiple arrivals have the same trDr value but different destination names, group them together in the same direction group and concatenate the destination names in the group header (e.g., "Forest Park / UIC-Halsted") in alphabetical order
-- [ ] Unit tests cover this edge case to ensure arrivals are grouped correctly by both direction and destination name when trDr values are identical
+- [x] When multiple arrivals have the same trDr value but different destination names, group them together in the same direction group and concatenate the destination names in the group header (e.g., "Forest Park / UIC-Halsted") in alphabetical order
+- [x] Unit tests cover this edge case to ensure arrivals are grouped correctly by both direction and destination name when trDr values are identical
 
 ### TODO 5.3 -- Train follow screen
 - [ ] Complete

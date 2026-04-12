@@ -219,7 +219,7 @@ private func makeViewModelWithMockRefresh(
 
     // MARK: - Grouping
 
-    @Test func groupsSortByLineThenDestination() async {
+    @Test func groupsSortByLineThenDestinationHeader() async {
         let (vm, _, _) = await makeViewModel(arrivals: [
             makeArrival(runNumber: "1", line: "Red", destinationName: "Howard", direction: "1"),
             makeArrival(runNumber: "2", line: "Blue", destinationName: "O'Hare", direction: "1"),
@@ -229,8 +229,52 @@ private func makeViewModelWithMockRefresh(
         await vm.initialLoad()
         vm.selectLine(nil)
         let groups = vm.groupedArrivals
-        let titles = groups.map { "\($0.key.line)|\($0.key.destination)" }
-        #expect(titles == ["Blue|Forest Park", "Blue|O'Hare", "Red|95th/Dan Ryan", "Red|Howard"])
+        let titles = groups.map { vm.groupTitle(for: $0) }
+        #expect(titles == [
+            "Blue Line to Forest Park",
+            "Blue Line to O'Hare",
+            "Red Line to 95th/Dan Ryan",
+            "Red Line to Howard"
+        ])
+    }
+
+    @Test func sameDirectionDifferentDestinationsMergeIntoOneGroup() async {
+        let (vm, _, _) = await makeViewModel(line: nil, arrivals: [
+            makeArrival(runNumber: "1", line: "Blue", destinationName: "Forest Park", direction: "5", arrivalMinutes: 3),
+            makeArrival(runNumber: "2", line: "Blue", destinationName: "UIC-Halsted", direction: "5", arrivalMinutes: 7),
+            makeArrival(runNumber: "3", line: "Blue", destinationName: "Forest Park", direction: "5", arrivalMinutes: 12)
+        ])
+        await vm.initialLoad()
+        vm.selectLine(nil)
+        let groups = vm.groupedArrivals
+        #expect(groups.count == 1)
+        #expect(groups[0].destinations == ["Forest Park", "UIC-Halsted"])
+        #expect(vm.groupTitle(for: groups[0]) == "Blue Line to Forest Park / UIC-Halsted")
+        #expect(groups[0].arrivals.map(\.runNumber) == ["1", "2", "3"])
+    }
+
+    @Test func differentDirectionsRemainSeparateGroups() async {
+        let (vm, _, _) = await makeViewModel(line: nil, arrivals: [
+            makeArrival(runNumber: "1", line: "Blue", destinationName: "O'Hare", direction: "1"),
+            makeArrival(runNumber: "2", line: "Blue", destinationName: "Forest Park", direction: "5")
+        ])
+        await vm.initialLoad()
+        vm.selectLine(nil)
+        let groups = vm.groupedArrivals
+        #expect(groups.count == 2)
+        #expect(groups[0].destinations == ["Forest Park"])
+        #expect(groups[1].destinations == ["O'Hare"])
+    }
+
+    @Test func groupTitleConcatenatesDestinationsWhenLineSelected() async {
+        let (vm, _, _) = await makeViewModel(line: blueLine, trainData: makeTrainData(lineIdsForStation: ["Blue"]), arrivals: [
+            makeArrival(runNumber: "1", line: "Blue", destinationName: "Forest Park", direction: "5"),
+            makeArrival(runNumber: "2", line: "Blue", destinationName: "UIC-Halsted", direction: "5")
+        ])
+        await vm.initialLoad()
+        let groups = vm.groupedArrivals
+        #expect(groups.count == 1)
+        #expect(vm.groupTitle(for: groups[0]) == "Forest Park / UIC-Halsted")
     }
 
     @Test func arrivalsWithinGroupSortByArrivalTimeThenRunNumber() async {

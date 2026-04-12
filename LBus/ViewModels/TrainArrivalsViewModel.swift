@@ -13,13 +13,16 @@ final class TrainArrivalsViewModel {
     struct ArrivalGroupKey: Hashable {
         let line: String
         let direction: String
-        let destination: String
     }
 
     struct ArrivalGroup: Identifiable {
         let key: ArrivalGroupKey
         var id: ArrivalGroupKey { key }
         var arrivals: [TrainArrival]
+
+        var destinations: [String] {
+            Array(Set(arrivals.map(\.destinationName))).sorted()
+        }
     }
 
     private(set) var arrivals: [TrainArrival] = []
@@ -121,14 +124,16 @@ final class TrainArrivalsViewModel {
 
     var groupedArrivals: [ArrivalGroup] {
         let grouped = Dictionary(grouping: filteredArrivals) {
-            ArrivalGroupKey(line: $0.line, direction: $0.direction, destination: $0.destinationName)
+            ArrivalGroupKey(line: $0.line, direction: $0.direction)
         }
         return grouped
             .sorted { lhs, rhs in
                 let lhsLine = lineDisplayName(for: lhs.key.line)
                 let rhsLine = lineDisplayName(for: rhs.key.line)
                 if lhsLine != rhsLine { return lhsLine < rhsLine }
-                return lhs.key.destination < rhs.key.destination
+                let lhsDest = Set(lhs.value.map(\.destinationName)).sorted().joined(separator: " / ")
+                let rhsDest = Set(rhs.value.map(\.destinationName)).sorted().joined(separator: " / ")
+                return lhsDest < rhsDest
             }
             .map { ArrivalGroup(key: $0.key, arrivals: $0.value.sorted {
                 if $0.arrivalTime != $1.arrivalTime { return $0.arrivalTime < $1.arrivalTime }
@@ -136,11 +141,16 @@ final class TrainArrivalsViewModel {
             })}
     }
 
+    func destinationTitle(for group: ArrivalGroup) -> String {
+        group.destinations.joined(separator: " / ")
+    }
+
     func groupTitle(for group: ArrivalGroup) -> String {
+        let dest = destinationTitle(for: group)
         if effectiveSelectedLine != nil {
-            return group.key.destination
+            return dest
         }
-        return "\(lineDisplayName(for: group.key.line)) to \(group.key.destination)"
+        return "\(lineDisplayName(for: group.key.line)) to \(dest)"
     }
 
     // MARK: - Lifecycle
