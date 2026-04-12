@@ -5,6 +5,7 @@ struct FavoritesView: View {
     let onExploreRoutes: () -> Void
 
     @State private var favorites: [Favorite] = []
+    @State private var showClearAllConfirmation = false
 
     var body: some View {
         Group {
@@ -20,29 +21,60 @@ struct FavoritesView: View {
                     .buttonStyle(.borderedProminent)
                 }
             } else {
-                List(favorites) { favorite in
-                    Group {
-                        if case .bus(let bus) = favorite {
-                            NavigationLink(value: BusNavigation.arrivals(
-                                stopId: bus.stopId,
-                                stopName: bus.stopName,
-                                route: bus.route,
-                                direction: bus.direction
-                            )) {
-                                favoriteRow(favorite)
+                List {
+                    ForEach(favorites) { favorite in
+                        Group {
+                            switch favorite {
+                            case .bus(let bus):
+                                NavigationLink(value: BusNavigation.arrivals(
+                                    stopId: bus.stopId,
+                                    stopName: bus.stopName,
+                                    route: bus.route,
+                                    direction: bus.direction
+                                )) {
+                                    favoriteRow(favorite)
+                                }
+                            case .train(let train):
+                                NavigationLink(value: TrainNavigation.arrivals(
+                                    stationId: train.stopId,
+                                    stationName: train.stopName,
+                                    line: TrainLine.fromId(train.line)
+                                )) {
+                                    favoriteRow(favorite)
+                                }
                             }
-                        } else {
-                            favoriteRow(favorite)
                         }
                     }
+                    .onDelete(perform: deleteFavorites)
+                }
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Clear All", role: .destructive) {
+                            showClearAllConfirmation = true
+                        }
+                    }
+                }
+                .confirmationDialog(
+                    "Remove All Favorites",
+                    isPresented: $showClearAllConfirmation,
+                    titleVisibility: .visible
+                ) {
+                    Button("Remove All", role: .destructive) {
+                        clearAllFavorites()
+                    }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("This will remove all your saved favorites. This action cannot be undone.")
                 }
             }
         }
         .navigationTitle("Favorites")
         .onAppear {
-            favorites = favoritesRepository.getAll()
+            reloadFavorites()
         }
     }
+
+    // MARK: - Row
 
     private func favoriteRow(_ favorite: Favorite) -> some View {
         HStack(spacing: 12) {
@@ -51,10 +83,41 @@ struct FavoritesView: View {
                 .frame(width: 24)
             VStack(alignment: .leading, spacing: 2) {
                 Text(favorite.name)
-                Text("\(favorite.routeOrLine) · \(favorite.direction)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if let subtitle = subtitle(for: favorite) {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
+    }
+
+    private func subtitle(for favorite: Favorite) -> String? {
+        switch favorite {
+        case .bus(let bus):
+            return "\(bus.route) · \(bus.direction)"
+        case .train(let train):
+            let lineName = TrainLine.fromId(train.line)?.name ?? train.line
+            return lineName.isEmpty ? nil : lineName
+        }
+    }
+
+    // MARK: - Actions
+
+    private func deleteFavorites(at offsets: IndexSet) {
+        for index in offsets {
+            let favorite = favorites[index]
+            try? favoritesRepository.remove(favorite)
+        }
+        reloadFavorites()
+    }
+
+    private func clearAllFavorites() {
+        try? favoritesRepository.removeAll()
+        reloadFavorites()
+    }
+
+    private func reloadFavorites() {
+        favorites = favoritesRepository.getAll()
     }
 }

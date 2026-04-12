@@ -429,7 +429,7 @@ Train arrivals now use `StatusBadge.Style` plus the shared `StatusBadgeStyle+Col
 ## Group 6: Favorites
 
 ### TODO 6.1 -- Favorites screen
-- [ ] Complete
+- [x] Complete
 
 Show all saved favorites with remove/clear-all, empty state, and navigation to the correct arrivals screen. Bus favorites open bus arrivals; train favorites open train arrivals (with line context if saved).
 
@@ -437,14 +437,16 @@ Show all saved favorites with remove/clear-all, empty state, and navigation to t
 
 > **Note:** `FavoritesView` shell with empty-state welcome message and read-only minimal list was introduced in TODO 1.5. This TODO builds on that foundation — adding row removal, clear-all, NavigationLinks to arrivals, and reactive data updates.
 
+> **Note:** Added `TrainLine.fallbackLinesById` static lookup for constructing `TrainLine` from favorite's stored line ID. `FavoritesView` now uses separate concrete `NavigationLink(value:)` for bus and train favorites (no `AnyHashable`), swipe-to-delete via `.onDelete`, "Clear All" toolbar button with `confirmationDialog`, and a `subtitle(for:)` that shows human-readable train line names (`"Orange Line"` not `"Org"`) and omits direction for train favorites (which store empty direction). List reloads on `.onAppear` for reactivity when returning from arrivals screens.
+
 **Acceptance Criteria:**
-- [ ] Lists favorites showing: name, transit type (bus/train), route/line context, direction when available
-- [ ] Remove control per row
-- [ ] "Clear all" action with confirmation
-- [ ] Tapping a bus favorite navigates to bus arrivals for that stop
-- [ ] Tapping a train favorite navigates to train arrivals for that station (with line context if saved)
-- [ ] Empty state when no favorites saved
-- [ ] List updates reactively when favorites change
+- [x] Lists favorites showing: name, transit type (bus/train), route/line context, direction when available (if not available, do not show the divider or label for direction)
+- [x] Remove control per row
+- [x] "Clear all" action with confirmation
+- [x] Tapping a bus favorite navigates to bus arrivals for that stop
+- [x] Tapping a train favorite navigates to train arrivals for that station (with line context if saved)
+- [x] Empty state when no favorites saved
+- [x] List updates reactively when favorites change
 
 ---
 
