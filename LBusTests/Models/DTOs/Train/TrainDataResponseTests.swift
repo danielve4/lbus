@@ -17,8 +17,8 @@ import Testing
             "40380": {"name": "Clark/Lake", "latitude": 41.8858, "longitude": -87.6309}
           },
           "stopSequences": {
-            "Red-N": {"line": "Red", "stops": ["40900", "41190", "40100"]},
-            "Red-S": {"line": "Red", "stops": ["40100", "41190", "40900"]}
+            "Red-N": {"line": "Red Line", "stops": ["40900", "41190", "40100"]},
+            "Red-S": {"line": "Red Line", "stops": ["40100", "41190", "40900"]}
           },
           "lastUpdated": "2025-04-30T12:00:00"
         }
@@ -38,10 +38,38 @@ import Testing
         #expect(pulaski.longitude == -87.7242)
 
         let redN = try #require(response.stopSequences["Red-N"])
-        #expect(redN.line == "Red")
+        #expect(redN.line == "Red Line")
         #expect(redN.stops == ["40900", "41190", "40100"])
 
         #expect(response.lastUpdated == "2025-04-30T12:00:00")
+    }
+
+    @Test func trainDataInitNormalizesStopSequenceLines() throws {
+        let json = """
+        {
+          "lines": [
+            {"route_id": "Red", "name": "Red Line", "color": "C60C30", "text_color": "FFFFFF"},
+            {"route_id": "Blue", "name": "Blue Line", "color": "00A1DE", "text_color": "FFFFFF"}
+          ],
+          "stations": {
+            "40380": {"name": "Clark/Lake", "latitude": 41.8858, "longitude": -87.6309}
+          },
+          "stopSequences": {
+            "Red-N": {"line": "Red Line", "stops": ["40380"]},
+            "Blue-W": {"line": "Blue Line", "stops": ["40380"]}
+          },
+          "lastUpdated": "2025-04-30T12:00:00"
+        }
+        """.data(using: .utf8)!
+
+        let response = try decoder.decode(TrainDataResponse.self, from: json)
+        let trainData = TrainData(from: response)
+
+        let redSeq = try #require(trainData.stopSequences.first { $0.id == "Red-N" })
+        #expect(redSeq.line == "Red")
+
+        let blueSeq = try #require(trainData.stopSequences.first { $0.id == "Blue-W" })
+        #expect(blueSeq.line == "Blue")
     }
 
     @Test func decodesEmptyCollections() throws {

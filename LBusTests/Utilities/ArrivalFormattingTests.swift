@@ -115,3 +115,94 @@ private func chicagoCalendar() -> Calendar {
         #expect(arrival.dayContextText(relativeTo: now, calendar: cal) == "Apr 2")
     }
 }
+
+// MARK: - TrainArrival Formatting Helpers
+
+private func makeTrainArrival(
+    arrivalTime: Date = Date(),
+    countdown: ArrivalCountdown = .minutes(5),
+    isApproaching: Bool = false,
+    isDelayed: Bool = false,
+    hasAlert: Bool = false
+) -> TrainArrival {
+    TrainArrival(from: TrainEtaPredictionDTO(
+        staId: "40380",
+        stpId: "30070",
+        staNm: "Clark/Lake",
+        stpDe: "Service toward Howard",
+        rn: "420",
+        rt: "Red",
+        destSt: "30173",
+        destNm: "Howard",
+        trDr: "1",
+        prdt: "2026-03-30T12:00:00",
+        arrT: trainArrivalDateString(arrivalTime),
+        isApp: isApproaching ? "1" : "0",
+        isSch: "0",
+        isDly: isDelayed ? "1" : "0",
+        isFlt: hasAlert ? "1" : "0",
+        flags: nil,
+        lat: nil,
+        lon: nil,
+        heading: nil
+    ))
+}
+
+private func trainArrivalDateString(_ date: Date) -> String {
+    let f = DateFormatter()
+    f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+    f.timeZone = TimeZone(identifier: "America/Chicago")
+    f.locale = Locale(identifier: "en_US_POSIX")
+    return f.string(from: date)
+}
+
+// MARK: - TrainArrival Formatting Tests
+
+@Suite struct TrainArrivalFormattingTests {
+
+    @Test func countdownTextDue() {
+        let arrival = makeTrainArrival(countdown: .due, isApproaching: true)
+        #expect(arrival.countdownText == "Due")
+    }
+
+    @Test func countdownTextMinutes() {
+        let cal = chicagoCalendar()
+        let base = cal.date(from: DateComponents(year: 2026, month: 3, day: 30, hour: 12))!
+        let arrTime = cal.date(from: DateComponents(year: 2026, month: 3, day: 30, hour: 12, minute: 7))!
+        let arrival = makeTrainArrival(arrivalTime: arrTime)
+        // countdown is computed from prediction-to-arrival diff in the DTO init
+        // Since we control the arrival time via the DTO, verify the formatting extension works
+        #expect(arrival.countdownText == "7 min")
+    }
+
+    @Test func clockTimeTextFormats12Hour() {
+        let cal = chicagoCalendar()
+        let date = cal.date(from: DateComponents(year: 2026, month: 3, day: 30, hour: 16, minute: 6))!
+        let arrival = makeTrainArrival(arrivalTime: date)
+        #expect(arrival.clockTimeText == "4:06 PM")
+    }
+
+    @Test func dayContextTextToday() {
+        let cal = chicagoCalendar()
+        let now = cal.date(from: DateComponents(year: 2026, month: 3, day: 30, hour: 12))!
+        let arrTime = cal.date(from: DateComponents(year: 2026, month: 3, day: 30, hour: 16))!
+        let arrival = makeTrainArrival(arrivalTime: arrTime)
+        #expect(arrival.dayContextText(relativeTo: now, calendar: cal) == "Today")
+    }
+
+    @Test func dayContextTextTomorrow() {
+        let cal = chicagoCalendar()
+        let now = cal.date(from: DateComponents(year: 2026, month: 3, day: 30, hour: 23))!
+        let arrTime = cal.date(from: DateComponents(year: 2026, month: 3, day: 31, hour: 0, minute: 15))!
+        let arrival = makeTrainArrival(arrivalTime: arrTime)
+        #expect(arrival.dayContextText(relativeTo: now, calendar: cal) == "Tomorrow")
+    }
+
+    @Test func dayContextTextFutureDate() {
+        let cal = chicagoCalendar()
+        let now = cal.date(from: DateComponents(year: 2026, month: 3, day: 30, hour: 12))!
+        let arrTime = cal.date(from: DateComponents(year: 2026, month: 4, day: 2, hour: 10))!
+        let arrival = makeTrainArrival(arrivalTime: arrTime)
+        #expect(arrival.dayContextText(relativeTo: now, calendar: cal) == "Apr 2")
+    }
+}

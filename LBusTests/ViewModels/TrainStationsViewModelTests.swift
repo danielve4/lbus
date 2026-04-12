@@ -33,13 +33,56 @@ private func makeViewModel(
     return (vm, repo)
 }
 
+// MARK: - normalizeStopSequences
+
+@Suite struct NormalizeStopSequencesTests {
+
+    @Test func convertsDisplayNamesToRouteIds() {
+        let data = makeTrainData(stopSequences: [
+            TrainStopSequence(id: "Red-N", line: "Red Line", stops: ["A", "B"]),
+            TrainStopSequence(id: "Blue-W", line: "Blue Line", stops: ["C", "D"])
+        ])
+        let normalized = TrainStationsViewModel.normalizeStopSequences(data)
+        #expect(normalized.stopSequences.first { $0.id == "Red-N" }?.line == "Red")
+        #expect(normalized.stopSequences.first { $0.id == "Blue-W" }?.line == "Blue")
+    }
+
+    @Test func passesThoughAlreadyNormalizedData() {
+        let data = makeTrainData(stopSequences: [
+            TrainStopSequence(id: "Red-N", line: "Red", stops: ["A", "B"])
+        ])
+        let normalized = TrainStationsViewModel.normalizeStopSequences(data)
+        #expect(normalized.stopSequences.first?.line == "Red")
+    }
+
+    @Test func preservesStationsAndLines() {
+        let data = makeTrainData(
+            stations: [station("A", "Howard")],
+            stopSequences: [
+                TrainStopSequence(id: "Red-N", line: "Red Line", stops: ["A"])
+            ]
+        )
+        let normalized = TrainStationsViewModel.normalizeStopSequences(data)
+        #expect(normalized.lines == data.lines)
+        #expect(normalized.stations == data.stations)
+    }
+
+    @Test func unknownLineNamePassesThrough() {
+        let data = makeTrainData(stopSequences: [
+            TrainStopSequence(id: "X-N", line: "Unknown Line", stops: ["A"])
+        ])
+        let normalized = TrainStationsViewModel.normalizeStopSequences(data)
+        #expect(normalized.stopSequences.first?.line == "Unknown Line")
+    }
+}
+
 // MARK: - orderedStationIds
 
 @Suite struct OrderedStationIdsTests {
 
     @Test func canonicalSequenceOrderPreserved() {
         let data = makeTrainData(stopSequences: [
-            TrainStopSequence(id: "Red-N", line: "Red Line", stops: ["A", "B", "C", "D"])
+            TrainStopSequence(id: "Red-N", line: "Red", stops: ["A", "B", "C", "D"])
         ])
         let result = TrainStationsViewModel.orderedStationIds(for: redLine, data: data)
         #expect(result == ["A", "B", "C", "D"])
@@ -49,8 +92,8 @@ private func makeViewModel(
         // Red-N and Red-S cover the same four stations in opposite order.
         // Canonical (Red-N sorts first alphabetically) wins; Red-S adds nothing.
         let data = makeTrainData(stopSequences: [
-            TrainStopSequence(id: "Red-N", line: "Red Line", stops: ["A", "B", "C", "D"]),
-            TrainStopSequence(id: "Red-S", line: "Red Line", stops: ["D", "C", "B", "A"])
+            TrainStopSequence(id: "Red-N", line: "Red", stops: ["A", "B", "C", "D"]),
+            TrainStopSequence(id: "Red-S", line: "Red", stops: ["D", "C", "B", "A"])
         ])
         let result = TrainStationsViewModel.orderedStationIds(for: redLine, data: data)
         #expect(result == ["A", "B", "C", "D"])
@@ -59,8 +102,8 @@ private func makeViewModel(
     @Test func nonCanonicalSequenceContributesMissingStations() {
         // Red-S has an extra station "E" not in Red-N — it should be appended.
         let data = makeTrainData(stopSequences: [
-            TrainStopSequence(id: "Red-N", line: "Red Line", stops: ["A", "B", "C"]),
-            TrainStopSequence(id: "Red-S", line: "Red Line", stops: ["C", "B", "A", "E"])
+            TrainStopSequence(id: "Red-N", line: "Red", stops: ["A", "B", "C"]),
+            TrainStopSequence(id: "Red-S", line: "Red", stops: ["C", "B", "A", "E"])
         ])
         let result = TrainStationsViewModel.orderedStationIds(for: redLine, data: data)
         #expect(result == ["A", "B", "C", "E"])
@@ -68,32 +111,43 @@ private func makeViewModel(
 
     @Test func lineWithNoSequencesReturnsEmpty() {
         let data = makeTrainData(stopSequences: [
-            TrainStopSequence(id: "Blue-W", line: "Blue Line", stops: ["X", "Y"])
+            TrainStopSequence(id: "Blue-W", line: "Blue", stops: ["X", "Y"])
         ])
         let result = TrainStationsViewModel.orderedStationIds(for: redLine, data: data)
         #expect(result.isEmpty)
     }
+
+    @Test func matchesByRouteIdNotDisplayName() {
+        // Regression: TrainStopSequence.line is a route ID ("Red"), not display name ("Red Line").
+        // TrainLine.id == "Red", TrainLine.name == "Red Line", sequence.line == "Red".
+        let data = makeTrainData(stopSequences: [
+            TrainStopSequence(id: "Red-N", line: "Red", stops: ["A", "B"]),
+            TrainStopSequence(id: "Blue-W", line: "Blue", stops: ["B", "C"])
+        ])
+        let result = TrainStationsViewModel.orderedStationIds(for: redLine, data: data)
+        #expect(result == ["A", "B"])
+    }
 }
 
-// MARK: - buildLineNamesByStation
+// MARK: - buildLineIdsByStation
 
-@Suite struct BuildLineNamesByStationTests {
+@Suite struct BuildLineIdsByStationTests {
 
     @Test func singlePassProducesUnionOfLinesPerStation() {
         let sequences = [
-            TrainStopSequence(id: "Red-N", line: "Red Line", stops: ["A", "B"]),
-            TrainStopSequence(id: "Orange-L", line: "Orange Line", stops: ["B", "C"]),
-            TrainStopSequence(id: "Blue-W", line: "Blue Line", stops: ["C", "D"])
+            TrainStopSequence(id: "Red-N", line: "Red", stops: ["A", "B"]),
+            TrainStopSequence(id: "Orange-L", line: "Orange", stops: ["B", "C"]),
+            TrainStopSequence(id: "Blue-W", line: "Blue", stops: ["C", "D"])
         ]
-        let map = TrainStationsViewModel.buildLineNamesByStation(from: sequences)
-        #expect(map["A"] == ["Red Line"])
-        #expect(map["B"] == Set(["Red Line", "Orange Line"]))
-        #expect(map["C"] == Set(["Orange Line", "Blue Line"]))
-        #expect(map["D"] == ["Blue Line"])
+        let map = TrainStationsViewModel.buildLineIdsByStation(from: sequences)
+        #expect(map["A"] == ["Red"])
+        #expect(map["B"] == Set(["Red", "Orange"]))
+        #expect(map["C"] == Set(["Orange", "Blue"]))
+        #expect(map["D"] == ["Blue"])
     }
 
     @Test func emptySequencesProducesEmptyMap() {
-        let map = TrainStationsViewModel.buildLineNamesByStation(from: [])
+        let map = TrainStationsViewModel.buildLineIdsByStation(from: [])
         #expect(map.isEmpty)
     }
 }
@@ -111,8 +165,8 @@ private func makeViewModel(
                 station("D", "95th")
             ],
             stopSequences: [
-                TrainStopSequence(id: "Red-N", line: "Red Line", stops: ["A", "B", "C", "D"]),
-                TrainStopSequence(id: "Red-S", line: "Red Line", stops: ["D", "C", "B", "A"])
+                TrainStopSequence(id: "Red-N", line: "Red", stops: ["A", "B", "C", "D"]),
+                TrainStopSequence(id: "Red-S", line: "Red", stops: ["D", "C", "B", "A"])
             ]
         )
     }
@@ -139,8 +193,8 @@ private func makeViewModel(
         let data = makeTrainData(
             stations: [station("A", "Howard"), station("C", "Roosevelt"), station("E", "Midway")],
             stopSequences: [
-                TrainStopSequence(id: "Red-N", line: "Red Line", stops: ["A", "C"]),
-                TrainStopSequence(id: "Orange-L", line: "Orange Line", stops: ["C", "E"])
+                TrainStopSequence(id: "Red-N", line: "Red", stops: ["A", "C"]),
+                TrainStopSequence(id: "Orange-L", line: "Orange", stops: ["C", "E"])
             ]
         )
         let (vm, _) = await makeViewModel(data: data)
@@ -154,7 +208,7 @@ private func makeViewModel(
         let data = makeTrainData(
             stations: [station("A", "Howard")],
             stopSequences: [
-                TrainStopSequence(id: "Red-N", line: "Red Line", stops: ["A"])
+                TrainStopSequence(id: "Red-N", line: "Red", stops: ["A"])
             ]
         )
         let (vm, _) = await makeViewModel(data: data)
@@ -235,5 +289,39 @@ private func makeViewModel(
         await vm.loadStations()
 
         #expect(vm.filteredStations(searchText: "Nonexistent").isEmpty)
+    }
+
+    // MARK: - Display name normalization (stale cache regression)
+
+    @Test func loadStationsWorksWithDisplayNameLineValues() async {
+        // Regression: cached TrainData may have display names ("Red Line") instead of route IDs ("Red")
+        // in stopSequence.line. loadStations must normalize before filtering.
+        let data = makeTrainData(
+            stations: [station("A", "Howard"), station("B", "Loyola")],
+            stopSequences: [
+                TrainStopSequence(id: "Red-N", line: "Red Line", stops: ["A", "B"]),
+                TrainStopSequence(id: "Red-S", line: "Red Line", stops: ["B", "A"])
+            ]
+        )
+        let (vm, _) = await makeViewModel(data: data)
+        await vm.loadStations()
+
+        #expect(vm.stations.map(\.id) == ["A", "B"])
+        #expect(vm.linesByStation["A"]?.map(\.id) == ["Red"])
+    }
+
+    @Test func loadStationsWithDisplayNamesResolvesMultiLineStations() async {
+        let data = makeTrainData(
+            stations: [station("A", "Howard"), station("C", "Roosevelt"), station("E", "Midway")],
+            stopSequences: [
+                TrainStopSequence(id: "Red-N", line: "Red Line", stops: ["A", "C"]),
+                TrainStopSequence(id: "Orange-L", line: "Orange Line", stops: ["C", "E"])
+            ]
+        )
+        let (vm, _) = await makeViewModel(data: data)
+        await vm.loadStations()
+
+        let rooseveltLines = vm.linesByStation["C"] ?? []
+        #expect(rooseveltLines.map(\.id) == ["Red", "Orange"])
     }
 }

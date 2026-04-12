@@ -7,6 +7,9 @@ Read TODOS.md for a comprehensive list of features and improvements planned for 
 # Planning mode
 While planning, ask any questions using the tool you have access to (e.g. AskUserQuestion, #tool:vscode/askQuestions) regarding the implementation of the TODO you are planning.
 
+# XCode MCP Tools
+Always use the XCode MCP tools to build and test your code.
+
 # API Host
 https://cta.danielvega.dev
 

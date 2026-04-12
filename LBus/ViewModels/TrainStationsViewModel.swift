@@ -39,16 +39,17 @@ final class TrainStationsViewModel {
 
         do {
             let data = try await trainRepository.getTrainData()
-            let lineNamesByStation = Self.buildLineNamesByStation(from: data.stopSequences)
-            let stationsById = Dictionary(uniqueKeysWithValues: data.stations.map { ($0.id, $0) })
-            let linesByName = Dictionary(uniqueKeysWithValues: data.lines.map { ($0.name, $0) })
+            let normalizedData = Self.normalizeStopSequences(data)
+            let lineIdsByStation = Self.buildLineIdsByStation(from: normalizedData.stopSequences)
+            let stationsById = Dictionary(uniqueKeysWithValues: normalizedData.stations.map { ($0.id, $0) })
+            let linesById = Dictionary(uniqueKeysWithValues: normalizedData.lines.map { ($0.id, $0) })
 
-            let orderedIds = Self.orderedStationIds(for: line, data: data)
+            let orderedIds = Self.orderedStationIds(for: line, data: normalizedData)
             stations = orderedIds.compactMap { stationsById[$0] }
             linesByStation = Self.resolveLinesByStation(
                 stationIds: orderedIds,
-                lineNamesByStation: lineNamesByStation,
-                linesByName: linesByName,
+                lineIdsByStation: lineIdsByStation,
+                linesById: linesById,
                 currentLine: line
             )
         } catch {
@@ -66,10 +67,20 @@ final class TrainStationsViewModel {
 
     // MARK: - Helpers
 
-    /// `TrainStopSequence.line` matches `TrainLine.name` (e.g. "Red Line"), not `route_id`.
+    /// Ensures `stopSequence.line` uses route IDs (e.g. "Red") even if cached data has display names ("Red Line").
+    nonisolated static func normalizeStopSequences(_ data: TrainData) -> TrainData {
+        let nameToId = Dictionary(uniqueKeysWithValues: data.lines.map { ($0.name, $0.id) })
+        let needsNormalization = data.stopSequences.contains { nameToId[$0.line] != nil }
+        guard needsNormalization else { return data }
+        let normalized = data.stopSequences.map { seq in
+            TrainStopSequence(id: seq.id, line: nameToId[seq.line] ?? seq.line, stops: seq.stops)
+        }
+        return TrainData(lines: data.lines, stations: data.stations, stopSequences: normalized)
+    }
+
     nonisolated static func orderedStationIds(for line: TrainLine, data: TrainData) -> [String] {
         let sequences = data.stopSequences
-            .filter { $0.line == line.name }
+            .filter { $0.line == line.id }
             .sorted { $0.id < $1.id }
         guard let canonical = sequences.first else { return [] }
         var result = canonical.stops
@@ -83,8 +94,8 @@ final class TrainStationsViewModel {
         return result
     }
 
-    /// One-pass map of station ID → set of line names serving it (matches `TrainStopSequence.line`).
-    nonisolated static func buildLineNamesByStation(from sequences: [TrainStopSequence]) -> [String: Set<String>] {
+    /// One-pass map of station ID → set of line IDs (route IDs) serving it.
+    nonisolated static func buildLineIdsByStation(from sequences: [TrainStopSequence]) -> [String: Set<String>] {
         var map: [String: Set<String>] = [:]
         for sequence in sequences {
             for stationId in sequence.stops {
@@ -96,18 +107,18 @@ final class TrainStationsViewModel {
 
     nonisolated static func resolveLinesByStation(
         stationIds: [String],
-        lineNamesByStation: [String: Set<String>],
-        linesByName: [String: TrainLine],
+        lineIdsByStation: [String: Set<String>],
+        linesById: [String: TrainLine],
         currentLine: TrainLine
     ) -> [String: [TrainLine]] {
         var result: [String: [TrainLine]] = [:]
         for stationId in stationIds {
-            let lineNames = lineNamesByStation[stationId] ?? []
-            let resolved = lineNames.compactMap { linesByName[$0] }
+            let lineIds = lineIdsByStation[stationId] ?? []
+            let resolved = lineIds.compactMap { linesById[$0] }
             let others = resolved
                 .filter { $0.id != currentLine.id }
                 .sorted { $0.name < $1.name }
-            let ordered = lineNames.contains(currentLine.name) ? [currentLine] + others : others
+            let ordered = lineIds.contains(currentLine.id) ? [currentLine] + others : others
             result[stationId] = ordered
         }
         return result

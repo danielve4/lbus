@@ -315,6 +315,16 @@ The shimmer effect is currently distracting and does not look great. Remove the 
 - [x] Ensure no shimmer remains in any bus arrivals or follow screen states
 - [x] Remove from skeleton views as well so loading states are consistent with refresh states
 
+### TODO 4.52 -- Delayed buses show "DUE" bug
+- [ ] Complete
+
+When a bus is delayed, the prediction that comes from the API is "Dly". In this case, it should show the "Delayed" badge and the countdown should show the calculated time until the bus arrives based on the current time and the predicted arrival time.
+
+**Acceptance Criteria:**
+- [ ] When an arrival has a prediction of "Dly", show the "Delayed" badge
+- [ ] Calculate the countdown based on the current time and the predicted arrival time, and display it as "Due" if the bus is imminent, or "X min" if it's further out
+- [ ] Unit tests cover the "Dly" prediction case to ensure the delayed badge is shown and the countdown is calculated correctly
+
 ---
 
 ## Group 5: Train Feature Screens
@@ -335,19 +345,31 @@ Show stations for a selected train line from `/traindata`. List is searchable. T
 - [x] Show a circle next to the station name (at the right side of the cell) that is filled with the line color for that station. If a station serves multiple lines, show multiple circles, one for each line, arranged horizontally.
 
 ### TODO 5.2 -- Train arrivals screen
-- [ ] Complete
+- [x] Complete
 
 Show real-time arrivals for a station, grouped by line and direction. Header with station info, favorite control, serving lines. When opened from a specific line, filter to that line. Auto-refresh, manual refresh, last-updated display.
 
+> **Note:** The real CTA API returns display names ("Red Line") in `TrainStopSequence.line`, not route IDs ("Red"). Added a normalizing `TrainData(from: TrainDataResponse)` initializer that maps display names → route IDs via `nameToId` lookup, so all downstream code consistently keys by `TrainLine.id`. Fixed DTO test fixture to match real API data. Arrivals grouped by `(line, direction, destinationName)` with composite `ArrivalGroupKey` for stable identity. Line filter built from union of serving lines (train data), live arrivals, and incoming line context — so selected line remains valid even with zero current predictions. Metadata fetch (`getTrainData()`) is non-fatal; line colors degrade to gray if it fails. Favorite uses incoming `line` context, not the currently selected filter pill. Follow modal handoff wired to placeholder pending TODO 5.3. Shared `ArrivalFormatting` formatters between bus and train.
+
 **Acceptance Criteria:**
-- [ ] Header: station name, station ID, favorite control, serving lines
-- [ ] Arrivals grouped by train line and direction/destination
-- [ ] Each arrival: line, destination, run number, countdown, clock time, day context, approaching badge, delayed badge, service alert badge
-- [ ] "Due" for imminent; "X min" countdown otherwise
-- [ ] Line context filtering when opened from a specific line
-- [ ] Auto-refresh every 30s, manual refresh, last-updated timestamp
-- [ ] Tapping an arrival pushes train follow screen
-- [ ] Empty state when no arrivals
+- [x] Header: station name, station ID, favorite control, serving lines
+- [x] Arrivals grouped by train line and direction/destination, sorted alphabetically by line then by direction
+- [x] Line filter similar to the bus arrivals route filter: horizontal scroll of line names above the arrivals list when multiple lines are present; selected line visually highlighted; "All" option to show all lines
+- [x] Each arrival: line, destination, run number, countdown, clock time, approaching badge, delayed badge, service alert badge
+- [x] "Due" for imminent; "X min" countdown otherwise
+- [x] Line context filtering when opened from a specific line
+- [x] Auto-refresh every 30s, manual refresh, last-updated timestamp
+- [x] Tapping an arrival uses modal presentation to show train follow screen for that train
+- [x] Empty state when no arrivals
+
+### TODO 5.21 -- Train arrivals destination grouping edge case
+- [ ] Complete
+
+Some train lines have multiple destinations even though they travel the same direction. For example, the Blue Line has three destinations: O'Hare, Forest Park, and UIC-Halsted. The API returns a trDr property that indicates the direction of travel with a number ("1" or "5"). However, both Forest Park and UIC-Halsted trains have the same trDr value, even though they are different destinations. In this case, we should group arrivals by both direction and destination name to ensure that Forest Park and UIC-Halsted trains are shown in the same group.
+
+**Acceptance Criteria:**
+- [ ] When multiple arrivals have the same trDr value but different destination names, group them together in the same direction group and concatenate the destination names in the group header (e.g., "Forest Park / UIC-Halsted") in alphabetical order
+- [ ] Unit tests cover this edge case to ensure arrivals are grouped correctly by both direction and destination name when trDr values are identical
 
 ### TODO 5.3 -- Train follow screen
 - [ ] Complete

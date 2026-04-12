@@ -67,11 +67,7 @@ final class TrainRepository: TrainRepositoryProtocol {
 
     private static func fetchTrainData(apiClient: APIClientProtocol) async throws -> TrainData {
         let response: TrainDataResponse = try await apiClient.get(path: "traindata")
-        return TrainData(
-            lines: response.lines.map(TrainLine.init(from:)),
-            stations: TrainStation.mapAll(from: response.stations),
-            stopSequences: TrainStopSequence.mapAll(from: response.stopSequences)
-        )
+        return TrainData(from: response)
     }
 
     private func throwIfAPIError(errCd: String, errNm: String?) throws {
