@@ -15,6 +15,18 @@ struct TrainPosition: Equatable, Sendable {
     }
 }
 
+struct StatusBadge: Equatable, Sendable {
+    enum Style: Equatable, Sendable {
+        case approaching
+        case scheduled
+        case delayed
+        case alert
+    }
+
+    let label: String
+    let style: Style
+}
+
 struct TrainArrival: Equatable, Sendable, Identifiable {
     var id: String { runNumber + "-" + stationId + "-" + stopId }
 
@@ -74,5 +86,14 @@ struct TrainArrival: Equatable, Sendable, Identifiable {
             let diff = Int(self.arrivalTime.timeIntervalSince(self.predictionTime) / 60)
             self.countdown = diff <= 0 ? .due : .minutes(diff)
         }
+    }
+
+    var statusBadges: [StatusBadge] {
+        var badges: [StatusBadge] = []
+        if isApproaching { badges.append(StatusBadge(label: "Approaching", style: .approaching)) }
+        if isScheduled { badges.append(StatusBadge(label: "Scheduled", style: .scheduled)) }
+        if isDelayed { badges.append(StatusBadge(label: "Delayed", style: .delayed)) }
+        if hasAlert { badges.append(StatusBadge(label: "Alert", style: .alert)) }
+        return badges
     }
 }

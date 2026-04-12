@@ -373,6 +373,18 @@ Some train lines have multiple destinations even though they travel the same dir
 - [x] When multiple arrivals have the same trDr value but different destination names, group them together in the same direction group and concatenate the destination names in the group header (e.g., "Forest Park / UIC-Halsted") in alphabetical order
 - [x] Unit tests cover this edge case to ensure arrivals are grouped correctly by both direction and destination name when trDr values are identical
 
+### TODO 5.22 -- Train arrivals show scheduled badge
+- [x] Complete
+
+Some train arrivals are schedule and have the "isSch" property set to "1". In this case, show a "Scheduled" badge on the arrival row to indicate that this arrival is based on the schedule rather than a real-time prediction. The countdown should still be calculated based on the scheduled arrival time.
+
+> **Note:** Added `StatusBadge` struct and `statusBadges` computed property to `TrainArrival` for testable badge rendering. The view renders badges via `ForEach` over `statusBadges` instead of individual `if` checks. "Scheduled" badge uses `.yellow` color. Badge order: Approaching → Scheduled → Delayed → Alert.
+
+**Acceptance Criteria:**
+- [x] When an arrival has the "isSch" property set to "1", show a "Scheduled" badge on the arrival row
+- [x] Calculate the countdown based on the scheduled arrival time for scheduled arrivals, and display it as "Due" if the train is imminent, or "X min" if it's further out
+- [x] Unit tests cover the scheduled arrival case to ensure the "Scheduled" badge is shown and the countdown is calculated correctly based on the scheduled time
+
 ### TODO 5.3 -- Train follow screen
 - [ ] Complete
 
@@ -384,6 +396,17 @@ Show upcoming stations for a tracked train run. Highlight the originating statio
 - [ ] Originating station visually highlighted
 - [ ] Auto-refresh every 30s, manual refresh
 - [ ] Loading, error, and empty states handled
+
+### TODO 5.31 -- Adopt shared status badge styles in bus views
+- [ ] Complete
+
+Train arrivals now use `StatusBadge.Style` plus the shared `StatusBadgeStyle+Color` mapping for badge background/text colors. Bus arrivals and bus follow still render delayed badges inline with duplicated styling. Move those bus badges onto the shared status badge styling path so delayed status colors stay consistent across bus and train screens.
+
+**Acceptance Criteria:**
+- [ ] Bus arrivals delayed badges use the shared `StatusBadge.Style.delayed` color mapping
+- [ ] Bus follow delayed badges use the shared `StatusBadge.Style.delayed` color mapping
+- [ ] Existing delayed badge appearance remains red background with white text
+- [ ] Duplicate inline delayed badge color styling is removed from bus arrival/follow rows
 
 ---
 

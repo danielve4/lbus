@@ -262,14 +262,8 @@ struct TrainArrivalsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 HStack(spacing: 4) {
-                    if arrival.isApproaching {
-                        badge("Approaching", color: .blue)
-                    }
-                    if arrival.isDelayed {
-                        badge("Delayed", color: .red)
-                    }
-                    if arrival.hasAlert {
-                        badge("Alert", color: .orange)
+                    ForEach(arrival.statusBadges, id: \.label) { b in
+                        badge(b.label, style: b.style)
                     }
                 }
             }
@@ -296,13 +290,13 @@ struct TrainArrivalsView: View {
             .background(RoundedRectangle(cornerRadius: 4).fill(fillColor))
     }
 
-    private func badge(_ text: String, color: Color) -> some View {
+    private func badge(_ text: String, style: StatusBadge.Style) -> some View {
         Text(text)
             .font(.caption2.bold())
-            .foregroundStyle(.white)
+            .foregroundStyle(style.textColor)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(RoundedRectangle(cornerRadius: 4).fill(color))
+            .background(RoundedRectangle(cornerRadius: 4).fill(style.backgroundColor))
     }
 }
 

@@ -135,4 +135,36 @@ import Testing
         let position = TrainPosition(from: dto)
         #expect(position == nil)
     }
+
+    // MARK: - Status Badges
+
+    @Test func scheduledArrivalIncludesScheduledBadge() {
+        let arrival = TrainArrival(from: makeDTO(isSch: "1"))
+        #expect(arrival.statusBadges.map(\.label).contains("Scheduled"))
+    }
+
+    @Test func scheduledArrivalCountdownCalculatesCorrectly() {
+        let arrival = TrainArrival(from: makeDTO(
+            prdt: "2025-04-30T20:23:32",
+            arrT: "2025-04-30T20:31:32",
+            isSch: "1"
+        ))
+        #expect(arrival.isScheduled == true)
+        #expect(arrival.countdown == .minutes(8))
+    }
+
+    @Test func nonScheduledArrivalExcludesScheduledBadge() {
+        let arrival = TrainArrival(from: makeDTO(isSch: "0"))
+        #expect(!arrival.statusBadges.map(\.label).contains("Scheduled"))
+    }
+
+    @Test func statusBadgesOrderCorrect() {
+        let arrival = TrainArrival(from: makeDTO(isApp: "1", isSch: "1", isDly: "1", isFlt: "1"))
+        #expect(arrival.statusBadges == [
+            StatusBadge(label: "Approaching", style: .approaching),
+            StatusBadge(label: "Scheduled", style: .scheduled),
+            StatusBadge(label: "Delayed", style: .delayed),
+            StatusBadge(label: "Alert", style: .alert)
+        ])
+    }
 }
